@@ -73,12 +73,13 @@ namespace LiveSplit.UI.Components
                 emulator = run.Metadata.UsesEmulator
             };
 
-            Dictionary<string, object> runData = new Dictionary<string, object>();
+            List<object> runData = new List<object>();
 
             foreach (var segment in run)
             {
-                runData.Add(segment.Name, new
+                runData.Add(new
                 {
+                    name = segment.Name,
                     splitTime = segment.SplitTime,
                     pbSplitTime = segment.PersonalBestSplitTime,
                     bestPossible = segment.BestSegmentTime,
