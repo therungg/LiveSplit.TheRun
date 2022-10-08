@@ -101,15 +101,32 @@ namespace LiveSplit.UI.Components
             };
         }
 
+        // TODO: Log or tell user when splits are invalid or when an error occurs. Don't just continue silently.
         public async void HandleSplit(object sender, object e)
         {
-            await UpdateSplitsState();
+            if (!AreSplitsValid()) return;
+
+            try
+            {
+                await UpdateSplitsState();
+            } catch { }
         }
 
         public async void HandleReset(object sender, TimerPhase value)
         {
-            await UpdateSplitsState();
-            await UploadSplits();
+            if (!AreSplitsValid()) return;
+
+            try
+            {
+                await UpdateSplitsState();
+                await UploadSplits();
+            }
+            catch { }
+        }
+
+        private bool AreSplitsValid()
+        {
+            return GameName != "" && CategoryName != "" && Settings.Path.Length == 36;
         }
 
         public async Task UploadSplits()
