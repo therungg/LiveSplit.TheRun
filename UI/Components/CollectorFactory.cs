@@ -12,7 +12,7 @@ namespace LiveSplit.UI.Components
 
         public string Description => "Uploads your runs to therun.gg";
 
-        public ComponentCategory Category => ComponentCategory.Information;
+        public ComponentCategory Category => ComponentCategory.Other;
 
         public IComponent Create(LiveSplitState state) => new CollectorComponent(state);
 
@@ -22,6 +22,6 @@ namespace LiveSplit.UI.Components
 
         public string UpdateURL => "";
 
-        public Version Version => Version.Parse("1.0.0");
+        public Version Version => Version.Parse("0.1.3");
     }
 }
