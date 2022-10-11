@@ -146,14 +146,22 @@ namespace LiveSplit.UI.Components
             var JSONObj = ser.Deserialize<Dictionary<string, string>>(responseBody);
 
             string url = HttpUtility.UrlDecode(JSONObj["url"]);
-            string[] urlParts = url.Split('&').Select(urlPart => urlPart.StartsWith("X-Amz-Credential") || urlPart.StartsWith("X-Amz-Security-Token") || urlPart.StartsWith("X-Amz-SignedHeaders") ? HttpUtility.UrlEncode(urlPart).Replace("%3d", "=") : urlPart).ToArray();
-
-            string newUrl = string.Join("&", urlParts).Replace(GameName, HttpUtility.UrlEncode(GameName)).Replace(CategoryName, HttpUtility.UrlEncode(CategoryName));
+            string correctlyEncodedUrl = EncodeUrl(url);
 
             StringContent content = new StringContent(XmlRunAsString());
             content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment");
 
-            var res = await httpClient.PutAsync(newUrl, content);
+            await httpClient.PutAsync(correctlyEncodedUrl, content);
+        }
+
+        private string EncodeUrl(string url)
+        {
+            string[] urlParts = url.Split('&').Select(urlPart => urlPart.StartsWith("X-Amz-Credential") || urlPart.StartsWith("X-Amz-Security-Token") || urlPart.StartsWith("X-Amz-SignedHeaders") ? HttpUtility.UrlEncode(urlPart).Replace("%3d", "=") : urlPart).ToArray();
+
+            string newUrl = string.Join("&", urlParts).Replace(GameName, HttpUtility.UrlEncode(GameName)).Replace(CategoryName, HttpUtility.UrlEncode(CategoryName));
+            string username = newUrl.Replace("https://splits-bucket-main.s3.eu-west-1.amazonaws.com/", "").Split('/')[0];
+
+            return newUrl.Replace(username, HttpUtility.UrlEncode(username));
         }
 
         private string XmlRunAsString()
