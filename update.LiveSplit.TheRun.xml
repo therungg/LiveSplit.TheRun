@@ -1,7 +1,7 @@
-﻿<updates>
+<updates>
 	<update version="0.1.4">
 		<files>
-			<file path="Components/LiveSplit.TheRun.dll" status="changed" />
+			<file path="LiveSplit.TheRun.dll" status="changed" />
 		</files>
 		<changelog>
 			<change>
