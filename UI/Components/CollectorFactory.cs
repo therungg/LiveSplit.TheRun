@@ -18,9 +18,8 @@ namespace LiveSplit.UI.Components
 
         public string UpdateName => ComponentName;
 
-        public string XMLURL => "";
-
-        public string UpdateURL => "";
+        public string UpdateURL => "https://raw.githubusercontent.com/therungg/LiveSplit.TheRun/main/";
+        public string XMLURL => UpdateURL + "update.LiveSplit.TheRun.xml";
 
         public Version Version => Version.Parse("0.1.3");
     }

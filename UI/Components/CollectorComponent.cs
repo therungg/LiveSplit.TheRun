@@ -61,8 +61,8 @@ namespace LiveSplit.UI.Components
         private object buildLiveRunData()
         {
             var run = State.Run;
-
             TimeSpan? CurrentTime = State.CurrentTime[State.CurrentTimingMethod];
+            List<object> runData = new List<object>();
 
             var MetaData = new
             {
@@ -73,33 +73,53 @@ namespace LiveSplit.UI.Components
                 emulator = run.Metadata.UsesEmulator
             };
 
-            List<object> runData = new List<object>();
-
             foreach (var segment in run)
             {
-                runData.Add(new
+                List<object> comparisons = new List<object>();
+
+                foreach (string key in segment.Comparisons.Keys)
+                {
+                    comparisons.Add(new
+                    {
+                        name = key,
+                        time = ConvertTime(segment.Comparisons[key])
+                    });
+                }
+
+                runData.Add(new 
                 {
                     name = segment.Name,
-                    splitTime = segment.SplitTime,
-                    pbSplitTime = segment.PersonalBestSplitTime,
-                    bestPossible = segment.BestSegmentTime,
-                    comparisons = segment.Comparisons
+                    splitTime = ConvertTime(segment.SplitTime),
+                    pbSplitTime = ConvertTime(segment.PersonalBestSplitTime),
+                    bestPossible = ConvertTime(segment.BestSegmentTime),
+                    comparisons = comparisons
                 });
             }
 
             return new
             {
                 metadata = MetaData,
-                currentTime = State.CurrentTime,
+                currentTime = ConvertTime(State.CurrentTime),
                 currentSplitName = State.CurrentSplit != null ? State.CurrentSplit.Name : "",
+                currentSplitIndex = State.CurrentSplitIndex,
                 timingMethod = State.CurrentTimingMethod,
-                currentDuration = State.CurrentAttemptDuration,
-                startTime = State.AttemptStarted,
-                endTime = State.AttemptEnded,
+                currentDuration = State.CurrentAttemptDuration.TotalMilliseconds,
+                startTime = State.AttemptStarted.Time.ToUniversalTime(),
+                endTime = State.AttemptEnded.Time.ToUniversalTime(),
                 uploadKey = Settings.Path,
                 runData = runData
             };
         }
+        
+        private double? ConvertTime(Time time)
+        {
+            if (time[State.CurrentTimingMethod] == null) return null;
+
+            TimeSpan timeSpan = (TimeSpan) time[State.CurrentTimingMethod];
+
+            return timeSpan.TotalMilliseconds;
+        }
+
 
         // TODO: Log or tell user when splits are invalid or when an error occurs. Don't just continue silently.
         public async void HandleSplit(object sender, object e)
