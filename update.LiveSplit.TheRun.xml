@@ -1,5 +1,5 @@
 <updates>
-	<update version="0.1.4">
+	<update version="0.1.5">
 		<files>
 			<file path="LiveSplit.TheRun.dll" status="changed" />
 		</files>

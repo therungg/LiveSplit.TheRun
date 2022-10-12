@@ -70,7 +70,8 @@ namespace LiveSplit.UI.Components
                 category = CategoryName,
                 platform = run.Metadata.PlatformName,
                 region = run.Metadata.RegionName,
-                emulator = run.Metadata.UsesEmulator
+                emulator = run.Metadata.UsesEmulator,
+                variables = run.Metadata.VariableValueNames
             };
 
             foreach (var segment in run)
@@ -129,7 +130,8 @@ namespace LiveSplit.UI.Components
             try
             {
                 await UpdateSplitsState();
-            } catch { }
+            }
+            catch { }
         }
 
         public async void HandleReset(object sender, TimerPhase value)
