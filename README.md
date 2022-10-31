@@ -9,7 +9,7 @@ Right now, only the automatic upload is working. The data for the live runs gets
 
 ## How to install
 
-1. Download the .dll file from the latest release https://github.com/therungg/LiveSplit.TheRun/releases/
+1. Download the .dll file from the latest release https://github.com/therungg/LiveSplit.TheRun/releases/ or download directly here: https://github.com/therungg/LiveSplit.TheRun/releases/download/v0.1.5/LiveSplit.TheRun.dll
 2. Insert the .dll file into your LiveSplit/Components directory and restart LiveSplit.
 3. Edit your LiveSplit Layout. Create a new Layout entry. The component should be under the "Other"-category and is called therun.gg.
 4. Login to therun.gg and hover over your name in the top-right corner. Select Upload Key (or go here: https://therun.gg/upload-key). Copy the key from the clickable box.
