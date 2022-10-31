@@ -27,6 +27,11 @@ namespace LiveSplit.UI.Components
         private string GameName = "";
         private string CategoryName = "";
 
+        private bool TimerPaused = false;
+        private bool WasJustResumed = false;
+        private TimeSpan CurrentPausedTime = TimeSpan.Zero;
+        private TimeSpan TimePausedBeforeResume = TimeSpan.Zero;
+
         public CollectorComponent(LiveSplitState state)
         {
             State = state;
@@ -37,14 +42,16 @@ namespace LiveSplit.UI.Components
             httpClient.DefaultRequestHeaders.Add("Sec-Fetch-Site", "cross-site");
             httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Disposition", "attachment");
 
-            GameName = State.Run.GameName;
-            CategoryName = State.Run.CategoryName;
+            SetGameAndCategory();
 
             State.OnStart += HandleSplit;
             State.OnSplit += HandleSplit;
             State.OnSkipSplit += HandleSplit;
             State.OnUndoSplit += HandleSplit;
+            State.OnUndoAllPauses += HandleSplit;
 
+            State.OnPause += HandlePause;
+            State.OnResume += HandleResume;
             State.OnReset += HandleReset;
         }
 
@@ -56,6 +63,12 @@ namespace LiveSplit.UI.Components
             var content = new StringContent(serializer.Serialize(returnData));
 
             await httpClient.PostAsync(SplitWebhookUrl, content);
+        }
+
+        private void SetGameAndCategory()
+        {
+            GameName = State.Run.GameName;
+            CategoryName = State.Run.CategoryName;
         }
         
         private object buildLiveRunData()
@@ -108,6 +121,13 @@ namespace LiveSplit.UI.Components
                 startTime = State.AttemptStarted.Time.ToUniversalTime(),
                 endTime = State.AttemptEnded.Time.ToUniversalTime(),
                 uploadKey = Settings.Path,
+                isPaused = TimerPaused,
+                isGameTimePaused = State.IsGameTimePaused,
+                gameTimePauseTime = State.GameTimePauseTime,
+                totalPauseTime = State.PauseTime,
+                currentPauseTime = TimePausedBeforeResume,
+                timePausedAt = State.TimePausedAt.TotalMilliseconds,
+                wasJustResumed = WasJustResumed,
                 runData = runData
             };
         }
@@ -121,6 +141,23 @@ namespace LiveSplit.UI.Components
             return timeSpan.TotalMilliseconds;
         }
 
+        public async void HandlePause(object sender, object e)
+        {
+            TimerPaused = true;
+            HandleSplit(sender, e);
+        }
+
+        public async void HandleResume(object sender, object e)
+        {
+
+            TimePausedBeforeResume = (TimeSpan)(State.PauseTime - CurrentPausedTime);
+            CurrentPausedTime = (TimeSpan) State.PauseTime;
+            TimerPaused = false;
+            WasJustResumed = true;
+
+            HandleSplit(sender, e);
+        }
+
 
         // TODO: Log or tell user when splits are invalid or when an error occurs. Don't just continue silently.
         public async void HandleSplit(object sender, object e)
@@ -129,9 +166,12 @@ namespace LiveSplit.UI.Components
 
             try
             {
+                SetGameAndCategory();
                 await UpdateSplitsState();
             }
             catch { }
+
+            WasJustResumed = false;
         }
 
         public async void HandleReset(object sender, TimerPhase value)
@@ -140,6 +180,7 @@ namespace LiveSplit.UI.Components
 
             try
             {
+                SetGameAndCategory();
                 await UpdateSplitsState();
                 await UploadSplits();
             }
