@@ -1,11 +1,11 @@
 # LiveSplit component for therun.gg
 
+Check out https://therun.gg/live for currently active runs!
+
 This component does two things:
 
 1. After every reset, it uploads your LiveSplit .lss file to therun.gg. This will automatically sync your runs with the site. No more manual uploading needed. Also works with new runs that haven't been uploaded before to the site.
 2. After every split action, sends data about the current run only to therun.gg. This allows therun.gg to keep track of live runs.
-
-Right now, only the automatic upload is working. The data for the live runs gets transmitted, but I'm still working on the features on therun.gg itself to handle this data. Coming soon!
 
 ## How to install
 
