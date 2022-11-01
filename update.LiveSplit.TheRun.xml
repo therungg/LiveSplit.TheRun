@@ -1,4 +1,15 @@
 ﻿<updates>
+	<update version="0.1.7">
+		<files>
+			<file path="Components/LiveSplit.TheRun.dll" status="changed" />
+		</files>
+		<changelog>
+			<change>Fixed issue where Game and Category name were not updated after changing splits.</change>
+			<change>Added support for pausing and resuming the timer.</change>
+			<change>Fixed bug that crashed layouts.</change>
+			<change>No more bugs ever again from now on!</change>
+		</changelog>
+	</update>
 	<update version="0.1.6">
 		<files>
 			<file path="Components/LiveSplit.TheRun.dll" status="changed" />
