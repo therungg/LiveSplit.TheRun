@@ -162,7 +162,7 @@ namespace LiveSplit.UI.Components
         // TODO: Log or tell user when splits are invalid or when an error occurs. Don't just continue silently.
         public async void HandleSplit(object sender, object e)
         {
-            if (!AreSplitsValid()) return;
+            if (!AreSplitsValid() || !Settings.IsEnabled) return;
 
             try
             {
@@ -176,7 +176,7 @@ namespace LiveSplit.UI.Components
 
         public async void HandleReset(object sender, TimerPhase value)
         {
-            if (!AreSplitsValid()) return;
+            if (!AreSplitsValid() || !Settings.IsEnabled) return;
 
             try
             {
