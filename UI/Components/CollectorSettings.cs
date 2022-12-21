@@ -17,7 +17,7 @@ namespace LiveSplit.UI.Components
             InitializeComponent();
 
             txtPath.DataBindings.Add("Text", this, "Path", false, DataSourceUpdateMode.OnPropertyChanged);
-            checkBox1.DataBindings.Add("Checked", this, "IsEnabled", false, DataSourceUpdateMode.OnPropertyChanged);
+            chkIsEnabled.DataBindings.Add("Checked", this, "IsEnabled", false, DataSourceUpdateMode.OnPropertyChanged);
 
             Path = "";
             IsEnabled = true;
@@ -57,11 +57,6 @@ namespace LiveSplit.UI.Components
         }
 
         private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
 
         }
