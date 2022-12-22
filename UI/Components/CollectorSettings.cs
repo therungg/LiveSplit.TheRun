@@ -10,17 +10,22 @@ namespace LiveSplit.UI.Components
         public LayoutMode Mode { get; set; }
 
         public string Path { get; set; }
-        public bool IsEnabled { get; set; }
+        public bool IsStatsUploadingEnabled { get; set; }
+        public bool IsLiveTrackingEnabled { get; set;  }
 
         public CollectorSettings()
         {
             InitializeComponent();
 
             txtPath.DataBindings.Add("Text", this, "Path", false, DataSourceUpdateMode.OnPropertyChanged);
-            chkIsEnabled.DataBindings.Add("Checked", this, "IsEnabled", false, DataSourceUpdateMode.OnPropertyChanged);
+            chkStatsUploadEnabled.DataBindings.Add("Checked", this, "IsStatsUploadingEnabled",
+                false, DataSourceUpdateMode.OnPropertyChanged);
+            chkLiveTrackingEnabled.DataBindings.Add("Checked", this, "IsLiveTrackingEnabled",
+                false, DataSourceUpdateMode.OnPropertyChanged);
 
             Path = "";
-            IsEnabled = true;
+            IsStatsUploadingEnabled = true;
+            IsLiveTrackingEnabled = true;
         }
 
         public void SetSettings(XmlNode node)
@@ -29,7 +34,8 @@ namespace LiveSplit.UI.Components
 
             Version version = SettingsHelper.ParseVersion(element["Version"]);
             Path = SettingsHelper.ParseString(element["Path"]);
-            IsEnabled = SettingsHelper.ParseBool(element["IsEnabled"]);
+            IsStatsUploadingEnabled = SettingsHelper.ParseBool(element["IsStatsUploadingEnabled"]);
+            IsLiveTrackingEnabled = SettingsHelper.ParseBool(element["IsLiveTrackingEnabled"]);
         }
 
         public XmlNode GetSettings(XmlDocument document)
@@ -48,7 +54,10 @@ namespace LiveSplit.UI.Components
         {
             return SettingsHelper.CreateSetting(document, parent, "Version", "1.0.0") ^
                 SettingsHelper.CreateSetting(document, parent, "Path", Path) ^
-                SettingsHelper.CreateSetting(document, parent, "IsEnabled", IsEnabled);
+                SettingsHelper.CreateSetting(document, parent,
+                    "IsStatsUploadingEnabled", IsStatsUploadingEnabled) ^
+                SettingsHelper.CreateSetting(document, parent,
+                    "IsLiveTrackingEnabled", IsLiveTrackingEnabled);
         }
 
         private void txtPath_TextChanged(object sender, EventArgs e)

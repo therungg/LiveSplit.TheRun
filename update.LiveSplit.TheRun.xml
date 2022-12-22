@@ -1,4 +1,13 @@
 ﻿<updates>
+	<update version="0.2.0">
+		<files>
+			<file path="Components/LiveSplit.TheRun.dll" status="changed" />
+		</files>
+		<changelog>
+			<change>Added checkbox to layout settings to enable / disable stats uploading.</change>
+			<change>Added checkbox to layout settings to enable / disable live tracking.</change>
+		</changelog>
+	</update>
 	<update version="0.1.7">
 		<files>
 			<file path="Components/LiveSplit.TheRun.dll" status="changed" />
