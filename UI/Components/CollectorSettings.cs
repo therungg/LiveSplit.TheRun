@@ -34,8 +34,8 @@ namespace LiveSplit.UI.Components
 
             Version version = SettingsHelper.ParseVersion(element["Version"]);
             Path = SettingsHelper.ParseString(element["Path"]);
-            IsStatsUploadingEnabled = SettingsHelper.ParseBool(element["IsStatsUploadingEnabled"]);
-            IsLiveTrackingEnabled = SettingsHelper.ParseBool(element["IsLiveTrackingEnabled"]);
+            IsStatsUploadingEnabled = element["IsStatsUploadingEnabled"] == null ? true : SettingsHelper.ParseBool(element["IsStatsUploadingEnabled"]);
+            IsLiveTrackingEnabled = element["IsLiveTrackingEnabled"] == null ? true : SettingsHelper.ParseBool(element["IsLiveTrackingEnabled"]);
         }
 
         public XmlNode GetSettings(XmlDocument document)

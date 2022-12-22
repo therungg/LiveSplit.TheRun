@@ -1,4 +1,12 @@
 ﻿<updates>
+	<update version="0.2.1">
+		<files>
+			<file path="Components/LiveSplit.TheRun.dll" status="changed" />
+		</files>
+		<changelog>
+			<change>Fixed bug where default value was disabled for new settings.</change>
+		</changelog>
+	</update>
 	<update version="0.2.0">
 		<files>
 			<file path="Components/LiveSplit.TheRun.dll" status="changed" />
