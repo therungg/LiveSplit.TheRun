@@ -162,7 +162,7 @@ namespace LiveSplit.UI.Components
         // TODO: Log or tell user when splits are invalid or when an error occurs. Don't just continue silently.
         public async void HandleSplit(object sender, object e)
         {
-            if (!AreSplitsValid()) return;
+            if (!AreSplitsValid() || !Settings.IsLiveTrackingEnabled) return;
 
             try
             {
@@ -181,7 +181,9 @@ namespace LiveSplit.UI.Components
             try
             {
                 SetGameAndCategory();
-                await UpdateSplitsState();
+                if (Settings.IsLiveTrackingEnabled)
+                    await UpdateSplitsState();
+
                 await UploadSplits();
             }
             catch { }
@@ -194,6 +196,8 @@ namespace LiveSplit.UI.Components
 
         public async Task UploadSplits()
         {
+            if (!Settings.IsStatsUploadingEnabled) return;
+
             string UploadKey = Settings.Path;
             string FileName = HttpUtility.UrlEncode(GameName) + "-" + HttpUtility.UrlEncode(CategoryName) + ".lss";
             string FileUploadUrl = FileUploadBaseUrl + "?filename=" + FileName + "&uploadKey=" + UploadKey;
