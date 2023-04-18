@@ -1,4 +1,13 @@
 ﻿<updates>
+	<update version="0.2.2">
+		<files>
+			<file path="Components/LiveSplit.TheRun.dll" status="changed" />
+		</files>
+		<changelog>
+			<change>Send "Current Comparison", to show correct comparison on the Live Page. Right now it just shows comparison to PB.</change>
+			<change>Use new URL to save bandwidth on webserver</change>
+		</changelog>
+	</update>
 	<update version="0.2.1">
 		<files>
 			<file path="Components/LiveSplit.TheRun.dll" status="changed" />

@@ -21,7 +21,7 @@ namespace LiveSplit.UI.Components
 
         private readonly HttpClient httpClient;
 
-        private string SplitWebhookUrl => "https://therun.gg/api/livesplit";
+        private string SplitWebhookUrl => "https://dspc6ekj2gjkfp44cjaffhjeue0fbswr.lambda-url.eu-west-1.on.aws/";
         private string FileUploadBaseUrl => "https://2uxp372ks6nwrjnk6t7lqov4zu0solno.lambda-url.eu-west-1.on.aws/";
 
         private string GameName = "";
@@ -128,6 +128,7 @@ namespace LiveSplit.UI.Components
                 currentPauseTime = TimePausedBeforeResume,
                 timePausedAt = State.TimePausedAt.TotalMilliseconds,
                 wasJustResumed = WasJustResumed,
+                currentComparison = State.CurrentComparison,
                 runData = runData
             };
         }
@@ -168,6 +169,11 @@ namespace LiveSplit.UI.Components
             {
                 SetGameAndCategory();
                 await UpdateSplitsState();
+
+                if (State.CurrentSplitIndex == State.Run.Count)
+                {
+                    await UploadSplits();
+                }
             }
             catch { }
 
