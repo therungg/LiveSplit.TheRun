@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Xml;
 using System.Windows.Forms;
+using System.IO;
 
 namespace LiveSplit.UI.Components
 {
@@ -10,6 +11,7 @@ namespace LiveSplit.UI.Components
         public LayoutMode Mode { get; set; }
 
         public string Path { get; set; }
+        public string FilePath { get; set; }
         public bool IsStatsUploadingEnabled { get; set; }
         public bool IsLiveTrackingEnabled { get; set;  }
 
@@ -18,12 +20,14 @@ namespace LiveSplit.UI.Components
             InitializeComponent();
 
             txtPath.DataBindings.Add("Text", this, "Path", false, DataSourceUpdateMode.OnPropertyChanged);
+            txtFile.DataBindings.Add("Text", this, "FilePath", false, DataSourceUpdateMode.OnPropertyChanged);
             chkStatsUploadEnabled.DataBindings.Add("Checked", this, "IsStatsUploadingEnabled",
                 false, DataSourceUpdateMode.OnPropertyChanged);
             chkLiveTrackingEnabled.DataBindings.Add("Checked", this, "IsLiveTrackingEnabled",
                 false, DataSourceUpdateMode.OnPropertyChanged);
 
             Path = "";
+            FilePath = "";
             IsStatsUploadingEnabled = true;
             IsLiveTrackingEnabled = true;
         }
@@ -34,6 +38,7 @@ namespace LiveSplit.UI.Components
 
             Version version = SettingsHelper.ParseVersion(element["Version"]);
             Path = SettingsHelper.ParseString(element["Path"]);
+            FilePath = SettingsHelper.ParseString(element["FilePath"]);
             IsStatsUploadingEnabled = element["IsStatsUploadingEnabled"] == null ? true : SettingsHelper.ParseBool(element["IsStatsUploadingEnabled"]);
             IsLiveTrackingEnabled = element["IsLiveTrackingEnabled"] == null ? true : SettingsHelper.ParseBool(element["IsLiveTrackingEnabled"]);
         }
@@ -54,7 +59,8 @@ namespace LiveSplit.UI.Components
         {
             return SettingsHelper.CreateSetting(document, parent, "Version", "1.0.0") ^
                 SettingsHelper.CreateSetting(document, parent, "Path", Path) ^
-                SettingsHelper.CreateSetting(document, parent,
+                SettingsHelper.CreateSetting(document, parent, "FilePath", FilePath) ^
+				SettingsHelper.CreateSetting(document, parent,
                     "IsStatsUploadingEnabled", IsStatsUploadingEnabled) ^
                 SettingsHelper.CreateSetting(document, parent,
                     "IsLiveTrackingEnabled", IsLiveTrackingEnabled);
@@ -69,5 +75,14 @@ namespace LiveSplit.UI.Components
         {
 
         }
-    }
+
+        private void buttonSelectFile_Click(object sender, EventArgs e) {
+            if (File.Exists(FilePath)) {
+                openFileDialog1.FileName = FilePath;
+            }
+            if (openFileDialog1.ShowDialog() == DialogResult.OK) {
+                FilePath = txtFile.Text = openFileDialog1.FileName;
+            }
+		}
+	}
 }

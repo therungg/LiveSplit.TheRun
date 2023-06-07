@@ -1,6 +1,7 @@
 ﻿using LiveSplit.Model;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -31,6 +32,8 @@ namespace LiveSplit.UI.Components
         private bool WasJustResumed = false;
         private TimeSpan CurrentPausedTime = TimeSpan.Zero;
         private TimeSpan TimePausedBeforeResume = TimeSpan.Zero;
+
+        private string UploadKey = "";
 
         public CollectorComponent(LiveSplitState state)
         {
@@ -120,7 +123,7 @@ namespace LiveSplit.UI.Components
                 currentDuration = State.CurrentAttemptDuration.TotalMilliseconds,
                 startTime = State.AttemptStarted.Time.ToUniversalTime(),
                 endTime = State.AttemptEnded.Time.ToUniversalTime(),
-                uploadKey = Settings.Path,
+                uploadKey = GetUploadKey(),
                 isPaused = TimerPaused,
                 isGameTimePaused = State.IsGameTimePaused,
                 gameTimePauseTime = State.GameTimePauseTime,
@@ -195,16 +198,26 @@ namespace LiveSplit.UI.Components
             catch { }
         }
 
+        private string GetUploadKey() 
+        {
+            string uploadKey = Settings.Path;
+            if (!string.IsNullOrEmpty(uploadKey)) return uploadKey;
+
+            if (!File.Exists(Settings.FilePath)) return "";
+            uploadKey = File.ReadAllText(Settings.FilePath).Trim();
+            return uploadKey;
+		}
+
         private bool AreSplitsValid()
         {
-            return GameName != "" && CategoryName != "" && Settings.Path.Length == 36;
+            return GameName != "" && CategoryName != "" && GetUploadKey().Length == 36;
         }
 
         public async Task UploadSplits()
         {
             if (!Settings.IsStatsUploadingEnabled) return;
 
-            string UploadKey = Settings.Path;
+            UploadKey = GetUploadKey();
             string FileName = HttpUtility.UrlEncode(GameName) + "-" + HttpUtility.UrlEncode(CategoryName) + ".lss";
             string FileUploadUrl = FileUploadBaseUrl + "?filename=" + FileName + "&uploadKey=" + UploadKey;
 
