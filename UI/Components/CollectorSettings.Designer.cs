@@ -112,7 +112,6 @@
 			this.txtFile.Name = "txtFile";
 			this.txtFile.Size = new System.Drawing.Size(331, 20);
 			this.txtFile.TabIndex = 6;
-			this.txtFile.UseSystemPasswordChar = true;
 			// 
 			// openFileDialog1
 			// 
