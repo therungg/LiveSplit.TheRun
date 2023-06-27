@@ -1,6 +1,9 @@
 ﻿using LiveSplit.Model;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -12,268 +15,266 @@ using System.Xml;
 
 namespace LiveSplit.UI.Components
 {
-    public class CollectorComponent : LogicComponent
-    {
-        public override string ComponentName => "therun.gg";
+	public class CollectorComponent : LogicComponent
+	{
+		public override string ComponentName => "therun.gg";
 
-        private LiveSplitState State { get; set; }
-        private CollectorSettings Settings { get; set; }
+		private LiveSplitState State { get; set; }
+		private CollectorSettings Settings { get; set; }
 
-        private readonly HttpClient httpClient;
+		private readonly HttpClient httpClient;
 
-        private string SplitWebhookUrl => "https://dspc6ekj2gjkfp44cjaffhjeue0fbswr.lambda-url.eu-west-1.on.aws/";
-        private string FileUploadBaseUrl => "https://2uxp372ks6nwrjnk6t7lqov4zu0solno.lambda-url.eu-west-1.on.aws/";
+		private string SplitWebhookUrl => "https://dspc6ekj2gjkfp44cjaffhjeue0fbswr.lambda-url.eu-west-1.on.aws/";
+		private string FileUploadBaseUrl => "https://2uxp372ks6nwrjnk6t7lqov4zu0solno.lambda-url.eu-west-1.on.aws/";
 
-        private string GameName = "";
-        private string CategoryName = "";
+		private string GameName = "";
+		private string CategoryName = "";
 
-        private bool TimerPaused = false;
-        private bool WasJustResumed = false;
-        private TimeSpan CurrentPausedTime = TimeSpan.Zero;
-        private TimeSpan TimePausedBeforeResume = TimeSpan.Zero;
+		private bool TimerPaused = false;
+		private bool WasJustResumed = false;
+		private TimeSpan CurrentPausedTime = TimeSpan.Zero;
+		private TimeSpan TimePausedBeforeResume = TimeSpan.Zero;
 
-        public CollectorComponent(LiveSplitState state)
-        {
-            State = state;
-            Settings = new CollectorSettings();
+		public CollectorComponent(LiveSplitState state)
+		{
+			State = state;
+			Settings = new CollectorSettings();
 
-            httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
-            httpClient.DefaultRequestHeaders.Add("Sec-Fetch-Site", "cross-site");
-            httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Disposition", "attachment");
+			httpClient = new HttpClient();
+			httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
+			httpClient.DefaultRequestHeaders.Add("Sec-Fetch-Site", "cross-site");
+			httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Disposition", "attachment");
 
-            SetGameAndCategory();
+			SetGameAndCategory();
 
-            State.OnStart += HandleSplit;
-            State.OnSplit += HandleSplit;
-            State.OnSkipSplit += HandleSplit;
-            State.OnUndoSplit += HandleSplit;
-            State.OnUndoAllPauses += HandleSplit;
+			State.OnStart += HandleSplit;
+			State.OnSplit += HandleSplit;
+			State.OnSkipSplit += HandleSplit;
+			State.OnUndoSplit += HandleSplit;
+			State.OnUndoAllPauses += HandleSplit;
 
-            State.OnPause += HandlePause;
-            State.OnResume += HandleResume;
-            State.OnReset += HandleReset;
-        }
+			State.OnPause += HandlePause;
+			State.OnResume += HandleResume;
+			State.OnReset += HandleReset;
+		}
 
-        public async Task UpdateSplitsState()
-        {
-            object returnData = buildLiveRunData();
+		public async Task UpdateSplitsState()
+		{
+			object returnData = buildLiveRunData();
 
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
-            var content = new StringContent(serializer.Serialize(returnData));
+			JavaScriptSerializer serializer = new JavaScriptSerializer();
+			var content = new StringContent(serializer.Serialize(returnData));
 
-            await httpClient.PostAsync(SplitWebhookUrl, content);
-        }
+			await httpClient.PostAsync(SplitWebhookUrl, content);
+		}
 
-        private void SetGameAndCategory()
-        {
-            GameName = State.Run.GameName;
-            CategoryName = State.Run.CategoryName;
-        }
-        
-        private object buildLiveRunData()
-        {
-            var run = State.Run;
-            TimeSpan? CurrentTime = State.CurrentTime[State.CurrentTimingMethod];
-            List<object> runData = new List<object>();
+		private void SetGameAndCategory()
+		{
+			GameName = State.Run.GameName;
+			CategoryName = State.Run.CategoryName;
+		}
 
-            var MetaData = new
-            {
-                game = GameName,
-                category = CategoryName,
-                platform = run.Metadata.PlatformName,
-                region = run.Metadata.RegionName,
-                emulator = run.Metadata.UsesEmulator,
-                variables = run.Metadata.VariableValueNames
-            };
+		private object buildLiveRunData()
+		{
+			var run = State.Run;
+			TimeSpan? CurrentTime = State.CurrentTime[State.CurrentTimingMethod];
+			List<object> runData = new List<object>();
 
-            foreach (var segment in run)
-            {
-                List<object> comparisons = new List<object>();
+			var MetaData = new
+			{
+				game = GameName,
+				category = CategoryName,
+				platform = run.Metadata.PlatformName,
+				region = run.Metadata.RegionName,
+				emulator = run.Metadata.UsesEmulator,
+				variables = run.Metadata.VariableValueNames
+			};
 
-                foreach (string key in segment.Comparisons.Keys)
-                {
-                    comparisons.Add(new
-                    {
-                        name = key,
-                        time = ConvertTime(segment.Comparisons[key])
-                    });
-                }
+			foreach (var segment in run)
+			{
+				List<object> comparisons = new List<object>();
 
-                runData.Add(new 
-                {
-                    name = segment.Name,
-                    splitTime = ConvertTime(segment.SplitTime),
-                    pbSplitTime = ConvertTime(segment.PersonalBestSplitTime),
-                    bestPossible = ConvertTime(segment.BestSegmentTime),
-                    comparisons = comparisons
-                });
-            }
+				foreach (string key in segment.Comparisons.Keys)
+				{
+					comparisons.Add(new
+					{
+						name = key,
+						time = ConvertTime(segment.Comparisons[key])
+					});
+				}
 
-            return new
-            {
-                metadata = MetaData,
-                currentTime = ConvertTime(State.CurrentTime),
-                currentSplitName = State.CurrentSplit != null ? State.CurrentSplit.Name : "",
-                currentSplitIndex = State.CurrentSplitIndex,
-                timingMethod = State.CurrentTimingMethod,
-                currentDuration = State.CurrentAttemptDuration.TotalMilliseconds,
-                startTime = State.AttemptStarted.Time.ToUniversalTime(),
-                endTime = State.AttemptEnded.Time.ToUniversalTime(),
-                uploadKey = Settings.Path,
-                isPaused = TimerPaused,
-                isGameTimePaused = State.IsGameTimePaused,
-                gameTimePauseTime = State.GameTimePauseTime,
-                totalPauseTime = State.PauseTime,
-                currentPauseTime = TimePausedBeforeResume,
-                timePausedAt = State.TimePausedAt.TotalMilliseconds,
-                wasJustResumed = WasJustResumed,
-                currentComparison = State.CurrentComparison,
-                runData = runData
-            };
-        }
-        
-        private double? ConvertTime(Time time)
-        {
-            if (time[State.CurrentTimingMethod] == null) return null;
+				runData.Add(new
+				{
+					name = segment.Name,
+					splitTime = ConvertTime(segment.SplitTime),
+					pbSplitTime = ConvertTime(segment.PersonalBestSplitTime),
+					bestPossible = ConvertTime(segment.BestSegmentTime),
+					comparisons = comparisons
+				});
+			}
 
-            TimeSpan timeSpan = (TimeSpan) time[State.CurrentTimingMethod];
+			return new
+			{
+				metadata = MetaData,
+				currentTime = ConvertTime(State.CurrentTime),
+				currentSplitName = State.CurrentSplit != null ? State.CurrentSplit.Name : "",
+				currentSplitIndex = State.CurrentSplitIndex,
+				timingMethod = State.CurrentTimingMethod,
+				currentDuration = State.CurrentAttemptDuration.TotalMilliseconds,
+				startTime = State.AttemptStarted.Time.ToUniversalTime(),
+				endTime = State.AttemptEnded.Time.ToUniversalTime(),
+				uploadKey = Settings.UploadKey,
+				isPaused = TimerPaused,
+				isGameTimePaused = State.IsGameTimePaused,
+				gameTimePauseTime = State.GameTimePauseTime,
+				totalPauseTime = State.PauseTime,
+				currentPauseTime = TimePausedBeforeResume,
+				timePausedAt = State.TimePausedAt.TotalMilliseconds,
+				wasJustResumed = WasJustResumed,
+				currentComparison = State.CurrentComparison,
+				runData = runData
+			};
+		}
 
-            return timeSpan.TotalMilliseconds;
-        }
+		private double? ConvertTime(Time time)
+		{
+			if (time[State.CurrentTimingMethod] == null) return null;
 
-        public async void HandlePause(object sender, object e)
-        {
-            TimerPaused = true;
-            HandleSplit(sender, e);
-        }
+			TimeSpan timeSpan = (TimeSpan)time[State.CurrentTimingMethod];
 
-        public async void HandleResume(object sender, object e)
-        {
+			return timeSpan.TotalMilliseconds;
+		}
 
-            TimePausedBeforeResume = (TimeSpan)(State.PauseTime - CurrentPausedTime);
-            CurrentPausedTime = (TimeSpan) State.PauseTime;
-            TimerPaused = false;
-            WasJustResumed = true;
+		public async void HandlePause(object sender, object e)
+		{
+			TimerPaused = true;
+			HandleSplit(sender, e);
+		}
 
-            HandleSplit(sender, e);
-        }
+		public async void HandleResume(object sender, object e)
+		{
 
+			TimePausedBeforeResume = (TimeSpan)(State.PauseTime - CurrentPausedTime);
+			CurrentPausedTime = (TimeSpan)State.PauseTime;
+			TimerPaused = false;
+			WasJustResumed = true;
 
-        // TODO: Log or tell user when splits are invalid or when an error occurs. Don't just continue silently.
-        public async void HandleSplit(object sender, object e)
-        {
-            if (!AreSplitsValid() || !Settings.IsLiveTrackingEnabled) return;
+			HandleSplit(sender, e);
+		}
 
-            try
-            {
-                SetGameAndCategory();
-                await UpdateSplitsState();
+		// TODO: Log or tell user when splits are invalid or when an error occurs. Don't just continue silently.
+		public async void HandleSplit(object sender, object e)
+		{
+			if (!AreSplitsValid() || !Settings.IsLiveTrackingEnabled) return;
 
-                if (State.CurrentSplitIndex == State.Run.Count)
-                {
-                    await UploadSplits();
-                }
-            }
-            catch { }
+			try
+			{
+				SetGameAndCategory();
+				await UpdateSplitsState();
 
-            WasJustResumed = false;
-        }
+				if (State.CurrentSplitIndex == State.Run.Count)
+				{
+					await UploadSplits();
+				}
+			}
+			catch { }
 
-        public async void HandleReset(object sender, TimerPhase value)
-        {
-            if (!AreSplitsValid()) return;
+			WasJustResumed = false;
+		}
 
-            try
-            {
-                SetGameAndCategory();
-                if (Settings.IsLiveTrackingEnabled)
-                    await UpdateSplitsState();
+		public async void HandleReset(object sender, TimerPhase value)
+		{
+			if (!AreSplitsValid()) return;
 
-                await UploadSplits();
-            }
-            catch { }
-        }
+			try
+			{
+				SetGameAndCategory();
+				if (Settings.IsLiveTrackingEnabled)
+					await UpdateSplitsState();
 
-        private bool AreSplitsValid()
-        {
-            return GameName != "" && CategoryName != "" && Settings.Path.Length == 36;
-        }
+				await UploadSplits();
+			}
+			catch { }
+		}
 
-        public async Task UploadSplits()
-        {
-            if (!Settings.IsStatsUploadingEnabled) return;
+		private bool AreSplitsValid()
+		{
+			return GameName != "" && CategoryName != "" && Settings.UploadKey.Length == 36;
+		}
 
-            string UploadKey = Settings.Path;
-            string FileName = HttpUtility.UrlEncode(GameName) + "-" + HttpUtility.UrlEncode(CategoryName) + ".lss";
-            string FileUploadUrl = FileUploadBaseUrl + "?filename=" + FileName + "&uploadKey=" + UploadKey;
+		public async Task UploadSplits()
+		{
+			if (!Settings.IsStatsUploadingEnabled) return;
 
-            var result = await httpClient.GetAsync(FileUploadUrl);
-            var responseBody = await result.Content.ReadAsStringAsync();
+			string FileName = HttpUtility.UrlEncode(GameName) + "-" + HttpUtility.UrlEncode(CategoryName) + ".lss";
+			string FileUploadUrl = FileUploadBaseUrl + "?filename=" + FileName + "&uploadKey=" + Settings.UploadKey;
 
-            // Something went wrong, but the backend will handle the error, LiveSplit should just keep going.
-            // Probably the upload key was not filled in.
-            if (!result.IsSuccessStatusCode) return;
+			var result = await httpClient.GetAsync(FileUploadUrl);
+			var responseBody = await result.Content.ReadAsStringAsync();
 
-            JavaScriptSerializer ser = new JavaScriptSerializer();
-            var JSONObj = ser.Deserialize<Dictionary<string, string>>(responseBody);
+			// Something went wrong, but the backend will handle the error, LiveSplit should just keep going.
+			// Probably the upload key was not filled in.
+			if (!result.IsSuccessStatusCode) return;
 
-            string url = HttpUtility.UrlDecode(JSONObj["url"]);
-            string correctlyEncodedUrl = EncodeUrl(url);
+			JavaScriptSerializer ser = new JavaScriptSerializer();
+			var JSONObj = ser.Deserialize<Dictionary<string, string>>(responseBody);
 
-            StringContent content = new StringContent(XmlRunAsString());
-            content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment");
+			string url = HttpUtility.UrlDecode(JSONObj["url"]);
+			string correctlyEncodedUrl = EncodeUrl(url);
 
-            await httpClient.PutAsync(correctlyEncodedUrl, content);
-        }
+			StringContent content = new StringContent(XmlRunAsString());
+			content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment");
 
-        private string EncodeUrl(string url)
-        {
-            string[] urlParts = url.Split('&').Select(urlPart => urlPart.StartsWith("X-Amz-Credential") || urlPart.StartsWith("X-Amz-Security-Token") || urlPart.StartsWith("X-Amz-SignedHeaders") ? HttpUtility.UrlEncode(urlPart).Replace("%3d", "=") : urlPart).ToArray();
+			await httpClient.PutAsync(correctlyEncodedUrl, content);
+		}
 
-            string newUrl = string.Join("&", urlParts).Replace(GameName, HttpUtility.UrlEncode(GameName)).Replace(CategoryName, HttpUtility.UrlEncode(CategoryName));
-            string username = newUrl.Replace("https://splits-bucket-main.s3.eu-west-1.amazonaws.com/", "").Split('/')[0];
+		private string EncodeUrl(string url)
+		{
+			string[] urlParts = url.Split('&').Select(urlPart => urlPart.StartsWith("X-Amz-Credential") || urlPart.StartsWith("X-Amz-Security-Token") || urlPart.StartsWith("X-Amz-SignedHeaders") ? HttpUtility.UrlEncode(urlPart).Replace("%3d", "=") : urlPart).ToArray();
 
-            return newUrl.Replace(username, HttpUtility.UrlEncode(username));
-        }
+			string newUrl = string.Join("&", urlParts).Replace(GameName, HttpUtility.UrlEncode(GameName)).Replace(CategoryName, HttpUtility.UrlEncode(CategoryName));
+			string username = newUrl.Replace("https://splits-bucket-main.s3.eu-west-1.amazonaws.com/", "").Split('/')[0];
 
-        private string XmlRunAsString()
-        {
-            Model.RunSavers.XMLRunSaver runSaver = new Model.RunSavers.XMLRunSaver();
-            System.IO.MemoryStream stream = new System.IO.MemoryStream();
+			return newUrl.Replace(username, HttpUtility.UrlEncode(username));
+		}
 
-            runSaver.Save(State.Run, stream);
+		private string XmlRunAsString()
+		{
+			Model.RunSavers.XMLRunSaver runSaver = new Model.RunSavers.XMLRunSaver();
+			System.IO.MemoryStream stream = new System.IO.MemoryStream();
 
-            return Encoding.UTF8.GetString(stream.ToArray());
-        }
+			runSaver.Save(State.Run, stream);
 
-        public override void Dispose()
-        {
-            State.OnStart -= HandleSplit;
-            State.OnSplit -= HandleSplit;
-            State.OnSkipSplit -= HandleSplit;
-            State.OnUndoSplit -= HandleSplit;
-            State.OnReset -= HandleReset;
+			return Encoding.UTF8.GetString(stream.ToArray());
+		}
 
-            httpClient.Dispose();
-        }
+		public override void Dispose()
+		{
+			State.OnStart -= HandleSplit;
+			State.OnSplit -= HandleSplit;
+			State.OnSkipSplit -= HandleSplit;
+			State.OnUndoSplit -= HandleSplit;
+			State.OnReset -= HandleReset;
 
-        public override XmlNode GetSettings(XmlDocument document)
-        {
-            return Settings.GetSettings(document);
-        }
+			httpClient.Dispose();
+		}
 
-        public override Control GetSettingsControl(LayoutMode mode)
-        {
-            Settings.Mode = mode;
-            return Settings;
-        }
+		public override XmlNode GetSettings(XmlDocument document)
+		{
+			return Settings.GetSettings(document);
+		}
 
-        public override void SetSettings(XmlNode settings)
-        {
-            Settings.SetSettings(settings);
-        }
+		public override Control GetSettingsControl(LayoutMode mode)
+		{
+			Settings.Mode = mode;
+			return Settings;
+		}
 
-        public override void Update(IInvalidator invalidator, LiveSplitState state, float width, float height, LayoutMode mode) {  }
-    }
+		public override void SetSettings(XmlNode settings)
+		{
+			Settings.SetSettings(settings);
+		}
+
+		public override void Update(IInvalidator invalidator, LiveSplitState state, float width, float height, LayoutMode mode) { }
+	}
 }

@@ -1,4 +1,12 @@
 ﻿<updates>
+	<update version="0.3.0">
+		<files>
+			<file path="Components/LiveSplit.TheRun.dll" status="changed" />
+		</files>
+		<changelog>
+			<change>Store the Upload Key separately from the LiveSplit layout file (.lsl). Save and overwrite existing layout files to erase the key from it.</change>
+		</changelog>
+	</update>
 	<update version="0.2.2">
 		<files>
 			<file path="Components/LiveSplit.TheRun.dll" status="changed" />
