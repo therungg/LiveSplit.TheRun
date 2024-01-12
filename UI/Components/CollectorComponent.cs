@@ -165,11 +165,11 @@ namespace LiveSplit.UI.Components
 		// TODO: Log or tell user when splits are invalid or when an error occurs. Don't just continue silently.
 		public async void HandleSplit(object sender, object e)
 		{
+			SetGameAndCategory();
 			if (!AreSplitsValid() || !Settings.IsLiveTrackingEnabled) return;
 
 			try
 			{
-				SetGameAndCategory();
 				await UpdateSplitsState();
 
 				if (State.CurrentSplitIndex == State.Run.Count)
@@ -184,11 +184,11 @@ namespace LiveSplit.UI.Components
 
 		public async void HandleReset(object sender, TimerPhase value)
 		{
+			SetGameAndCategory();
 			if (!AreSplitsValid()) return;
 
 			try
 			{
-				SetGameAndCategory();
 				if (Settings.IsLiveTrackingEnabled)
 					await UpdateSplitsState();
 

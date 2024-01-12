@@ -1,4 +1,12 @@
 ﻿<updates>
+	<update version="0.3.1">
+		<files>
+			<file path="Components/LiveSplit.TheRun.dll" status="changed" />
+		</files>
+		<changelog>
+			<change>Fixed bug where runs would not be uploaded to the website if empty splits were used earlier in the same session.</change>
+		</changelog>
+	</update>
 	<update version="0.3.0">
 		<files>
 			<file path="Components/LiveSplit.TheRun.dll" status="changed" />
