@@ -59,10 +59,12 @@
     <ProjectReference Include="..\..\Libs\SpeedrunComSharp\SpeedrunComSharp\SpeedrunComSharp.csproj">
       <Project>{924AAFFE-5B89-49E2-99AD-EC9373CC838D}</Project>
       <Name>SpeedrunComSharp</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\LiveSplit.Core\LiveSplit.Core.csproj">
       <Project>{6de847db-20a3-4848-aeee-1b4364aecdfb}</Project>
       <Name>LiveSplit.Core</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\UpdateManager\UpdateManager.csproj">
       <Project>{56dea3a0-2eb7-493b-b50f-a5e3aa8ae52a}</Project>
