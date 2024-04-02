@@ -1,36 +1,29 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <OutputType>Library</OutputType>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <OutDir>..\..\bin\$(Configuration)\Components</OutDir>
+    <TargetFramework>net4.6.1</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>..\..\bin\Debug\Components\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>..\..\bin\Release\Components\</OutputPath>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System.Web" />
-    <Reference Include="System.Web.Extensions" />
+    <Content Include="update.LiveSplit.TheRun.xml" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Update="UI\Components\CollectorSettings.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\Libs\SpeedrunComSharp\SpeedrunComSharp\SpeedrunComSharp.csproj" />
     <ProjectReference Include="..\..\LiveSplit.Core\LiveSplit.Core.csproj" />
     <ProjectReference Include="..\..\UpdateManager\UpdateManager.csproj" />
   </ItemGroup>
+
   <ItemGroup>
-    <Content Include="update.LiveSplit.TheRun.xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-  </ItemGroup>
+
 </Project>
