@@ -1,2 +1,9 @@
 ﻿<updates>
+  <update version="0.3.2">
+    <files>
+      <file path="Components/LiveSplit.TheRun.dll" status="changed" />
+    </files>
+    <changelog>
+    </changelog>
+  </update>
 </updates>
