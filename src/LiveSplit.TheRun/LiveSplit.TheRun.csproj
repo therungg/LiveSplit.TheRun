@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="update.LiveSplit.TheRun.xml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="$(LsLibPath)\SpeedrunComSharp\src\SpeedrunComSharp\SpeedrunComSharp.csproj" Private="false" ExcludeAssets="runtime" />
     <ProjectReference Include="$(LsSrcPath)\LiveSplit.Core\LiveSplit.Core.csproj" Private="false" ExcludeAssets="runtime" />
     <ProjectReference Include="$(LsSrcPath)\UpdateManager\UpdateManager.csproj" Private="false" ExcludeAssets="runtime" />
