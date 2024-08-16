@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <UseWindowsForms>true</UseWindowsForms>
+    <TargetFramework>net4.8.1</TargetFramework>
 
     <EnableDynamicLoading>true</EnableDynamicLoading>
   </PropertyGroup>
