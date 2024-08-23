@@ -2,13 +2,10 @@
 
   <PropertyGroup>
     <UseWindowsForms>true</UseWindowsForms>
+    <TargetFramework>net4.8.1</TargetFramework>
 
     <EnableDynamicLoading>true</EnableDynamicLoading>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Content Include="update.LiveSplit.TheRun.xml" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="$(LsLibPath)\SpeedrunComSharp\src\SpeedrunComSharp\SpeedrunComSharp.csproj" Private="false" ExcludeAssets="runtime" />
