@@ -136,7 +136,10 @@ public class CollectorComponent : LogicComponent
 
     private double? ConvertTime(Time time)
     {
-        if (time[State.CurrentTimingMethod] == null) return null;
+        if (time[State.CurrentTimingMethod] == null)
+        {
+            return null;
+        }
 
         TimeSpan timeSpan = (TimeSpan)time[State.CurrentTimingMethod];
 
@@ -164,7 +167,10 @@ public class CollectorComponent : LogicComponent
     public async void HandleSplit(object sender, object e)
     {
         SetGameAndCategory();
-        if (!AreSplitsValid() || !Settings.IsLiveTrackingEnabled) return;
+        if (!AreSplitsValid() || !Settings.IsLiveTrackingEnabled)
+        {
+            return;
+        }
 
         try
         {
@@ -183,12 +189,17 @@ public class CollectorComponent : LogicComponent
     public async void HandleReset(object sender, TimerPhase value)
     {
         SetGameAndCategory();
-        if (!AreSplitsValid()) return;
+        if (!AreSplitsValid())
+        {
+            return;
+        }
 
         try
         {
             if (Settings.IsLiveTrackingEnabled)
+            {
                 await UpdateSplitsState();
+            }
 
             await UploadSplits();
         }
@@ -202,7 +213,10 @@ public class CollectorComponent : LogicComponent
 
     public async Task UploadSplits()
     {
-        if (!Settings.IsStatsUploadingEnabled) return;
+        if (!Settings.IsStatsUploadingEnabled)
+        {
+            return;
+        }
 
         string FileName = HttpUtility.UrlEncode(GameName) + "-" + HttpUtility.UrlEncode(CategoryName) + ".lss";
         string FileUploadUrl = FileUploadBaseUrl + "?filename=" + FileName + "&uploadKey=" + Settings.UploadKey;
@@ -212,7 +226,10 @@ public class CollectorComponent : LogicComponent
 
         // Something went wrong, but the backend will handle the error, LiveSplit should just keep going.
         // Probably the upload key was not filled in.
-        if (!result.IsSuccessStatusCode) return;
+        if (!result.IsSuccessStatusCode)
+        {
+            return;
+        }
 
         JavaScriptSerializer ser = new JavaScriptSerializer();
         var JSONObj = ser.Deserialize<Dictionary<string, string>>(responseBody);

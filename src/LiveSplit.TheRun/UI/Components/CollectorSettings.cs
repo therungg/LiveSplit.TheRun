@@ -52,12 +52,18 @@ public partial class CollectorSettings : UserControl
             SaveUploadKey(key);
             return key;
         }
+
         if (!string.IsNullOrEmpty(txtPath.Text))
         {
             return txtPath.Text;
         }
+
         string filePath = System.IO.Path.Combine(UploadKeyFolder, UploadKeyFile);
-        if (!File.Exists(filePath)) return "";
+        if (!File.Exists(filePath))
+        {
+            return "";
+        }
+
         return File.ReadAllText(filePath).Trim();
     }
 
