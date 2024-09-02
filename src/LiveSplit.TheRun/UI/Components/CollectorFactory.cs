@@ -15,7 +15,10 @@ public class CollectorFactory : IComponentFactory
 
     public ComponentCategory Category => ComponentCategory.Other;
 
-    public IComponent Create(LiveSplitState state) => new CollectorComponent(state);
+    public IComponent Create(LiveSplitState state)
+    {
+        return new CollectorComponent(state);
+    }
 
     public string UpdateName => ComponentName;
 

@@ -13,7 +13,7 @@ public partial class CollectorSettings : UserControl
     private readonly string UploadKeyFile = "Livesplit.TheRun/uploadkey.txt";
     private readonly string UploadKeyFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
-    public string UploadKey { get { return GetUploadKey(); } }
+    public string UploadKey => GetUploadKey();
 
     public string Path { get; set; }
     public bool IsStatsUploadingEnabled { get; set; }
