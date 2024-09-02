@@ -10,8 +10,8 @@ public partial class CollectorSettings : UserControl
 
     public LayoutMode Mode { get; set; }
 
-    private string UploadKeyFile = "Livesplit.TheRun/uploadkey.txt";
-    private string UploadKeyFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+    private readonly string UploadKeyFile = "Livesplit.TheRun/uploadkey.txt";
+    private readonly string UploadKeyFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
     public string UploadKey { get { return GetUploadKey(); } }
 
