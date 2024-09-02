@@ -60,7 +60,7 @@ public class CollectorComponent : LogicComponent
     {
         object returnData = buildLiveRunData();
 
-        JavaScriptSerializer serializer = new JavaScriptSerializer();
+        var serializer = new JavaScriptSerializer();
         var content = new StringContent(serializer.Serialize(returnData));
 
         await httpClient.PostAsync(SplitWebhookUrl, content);
@@ -74,7 +74,7 @@ public class CollectorComponent : LogicComponent
 
     private object buildLiveRunData()
     {
-        var run = State.Run;
+        IRun run = State.Run;
         TimeSpan? CurrentTime = State.CurrentTime[State.CurrentTimingMethod];
         List<object> runData = [];
 
@@ -88,7 +88,7 @@ public class CollectorComponent : LogicComponent
             variables = run.Metadata.VariableValueNames
         };
 
-        foreach (var segment in run)
+        foreach (ISegment segment in run)
         {
             List<object> comparisons = [];
 
@@ -141,7 +141,7 @@ public class CollectorComponent : LogicComponent
             return null;
         }
 
-        TimeSpan timeSpan = (TimeSpan)time[State.CurrentTimingMethod];
+        var timeSpan = (TimeSpan)time[State.CurrentTimingMethod];
 
         return timeSpan.TotalMilliseconds;
     }
@@ -221,8 +221,8 @@ public class CollectorComponent : LogicComponent
         string FileName = HttpUtility.UrlEncode(GameName) + "-" + HttpUtility.UrlEncode(CategoryName) + ".lss";
         string FileUploadUrl = FileUploadBaseUrl + "?filename=" + FileName + "&uploadKey=" + Settings.UploadKey;
 
-        var result = await httpClient.GetAsync(FileUploadUrl);
-        var responseBody = await result.Content.ReadAsStringAsync();
+        HttpResponseMessage result = await httpClient.GetAsync(FileUploadUrl);
+        string responseBody = await result.Content.ReadAsStringAsync();
 
         // Something went wrong, but the backend will handle the error, LiveSplit should just keep going.
         // Probably the upload key was not filled in.
@@ -231,13 +231,13 @@ public class CollectorComponent : LogicComponent
             return;
         }
 
-        JavaScriptSerializer ser = new JavaScriptSerializer();
-        var JSONObj = ser.Deserialize<Dictionary<string, string>>(responseBody);
+        var ser = new JavaScriptSerializer();
+        Dictionary<string, string> JSONObj = ser.Deserialize<Dictionary<string, string>>(responseBody);
 
         string url = HttpUtility.UrlDecode(JSONObj["url"]);
         string correctlyEncodedUrl = EncodeUrl(url);
 
-        StringContent content = new StringContent(XmlRunAsString());
+        var content = new StringContent(XmlRunAsString());
         content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment");
 
         await httpClient.PutAsync(correctlyEncodedUrl, content);
@@ -255,8 +255,8 @@ public class CollectorComponent : LogicComponent
 
     private string XmlRunAsString()
     {
-        Model.RunSavers.XMLRunSaver runSaver = new Model.RunSavers.XMLRunSaver();
-        System.IO.MemoryStream stream = new System.IO.MemoryStream();
+        var runSaver = new Model.RunSavers.XMLRunSaver();
+        var stream = new System.IO.MemoryStream();
 
         runSaver.Save(State.Run, stream);
 
