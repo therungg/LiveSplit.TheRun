@@ -46,9 +46,9 @@ public partial class CollectorSettings : UserControl
 
     private string GetUploadKey()
     {
-        if (!string.IsNullOrEmpty(this.Path))
+        if (!string.IsNullOrEmpty(Path))
         {
-            string key = this.Path;
+            string key = Path;
             SaveUploadKey(key);
             return key;
         }
@@ -72,7 +72,7 @@ public partial class CollectorSettings : UserControl
         string filePath = System.IO.Path.Combine(UploadKeyFolder, UploadKeyFile);
         Directory.CreateDirectory(System.IO.Path.GetDirectoryName(filePath));
         File.WriteAllText(filePath, key);
-        this.Path = "";
+        Path = "";
     }
 
     public XmlNode GetSettings(XmlDocument document)
