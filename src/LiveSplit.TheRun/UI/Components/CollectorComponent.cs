@@ -76,7 +76,7 @@ public class CollectorComponent : LogicComponent
     {
         var run = State.Run;
         TimeSpan? CurrentTime = State.CurrentTime[State.CurrentTimingMethod];
-        List<object> runData = new List<object>();
+        List<object> runData = [];
 
         var MetaData = new
         {
@@ -90,7 +90,7 @@ public class CollectorComponent : LogicComponent
 
         foreach (var segment in run)
         {
-            List<object> comparisons = new List<object>();
+            List<object> comparisons = [];
 
             foreach (string key in segment.Comparisons.Keys)
             {
