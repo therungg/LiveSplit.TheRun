@@ -40,8 +40,8 @@ public partial class CollectorSettings : UserControl
         Version version = SettingsHelper.ParseVersion(element["Version"]);
         Path = SettingsHelper.ParseString(element["Path"]);
         txtPath.Text = GetUploadKey();
-        IsStatsUploadingEnabled = element["IsStatsUploadingEnabled"] == null ? true : SettingsHelper.ParseBool(element["IsStatsUploadingEnabled"]);
-        IsLiveTrackingEnabled = element["IsLiveTrackingEnabled"] == null ? true : SettingsHelper.ParseBool(element["IsLiveTrackingEnabled"]);
+        IsStatsUploadingEnabled = element["IsStatsUploadingEnabled"] == null || SettingsHelper.ParseBool(element["IsStatsUploadingEnabled"]);
+        IsLiveTrackingEnabled = element["IsLiveTrackingEnabled"] == null || SettingsHelper.ParseBool(element["IsLiveTrackingEnabled"]);
     }
 
     private string GetUploadKey()
