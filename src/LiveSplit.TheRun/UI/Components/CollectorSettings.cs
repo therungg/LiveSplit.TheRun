@@ -1,108 +1,107 @@
 ﻿using System;
-using System.Xml;
-using System.Windows.Forms;
 using System.IO;
+using System.Windows.Forms;
+using System.Xml;
 
-namespace LiveSplit.UI.Components
+namespace LiveSplit.UI.Components;
+
+public partial class CollectorSettings : UserControl
 {
-	public partial class CollectorSettings : UserControl
-	{
 
-		public LayoutMode Mode { get; set; }
+    public LayoutMode Mode { get; set; }
 
-		private string UploadKeyFile = "Livesplit.TheRun/uploadkey.txt";
-		private string UploadKeyFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+    private string UploadKeyFile = "Livesplit.TheRun/uploadkey.txt";
+    private string UploadKeyFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
-		public string UploadKey { get { return GetUploadKey(); } }
+    public string UploadKey { get { return GetUploadKey(); } }
 
-		public string Path { get; set; }
-		public bool IsStatsUploadingEnabled { get; set; }
-		public bool IsLiveTrackingEnabled { get; set; }
+    public string Path { get; set; }
+    public bool IsStatsUploadingEnabled { get; set; }
+    public bool IsLiveTrackingEnabled { get; set; }
 
-		public CollectorSettings()
-		{
-			InitializeComponent();
+    public CollectorSettings()
+    {
+        InitializeComponent();
 
-			chkStatsUploadEnabled.DataBindings.Add("Checked", this, "IsStatsUploadingEnabled",
-				false, DataSourceUpdateMode.OnPropertyChanged);
-			chkLiveTrackingEnabled.DataBindings.Add("Checked", this, "IsLiveTrackingEnabled",
-				false, DataSourceUpdateMode.OnPropertyChanged);
+        chkStatsUploadEnabled.DataBindings.Add("Checked", this, "IsStatsUploadingEnabled",
+            false, DataSourceUpdateMode.OnPropertyChanged);
+        chkLiveTrackingEnabled.DataBindings.Add("Checked", this, "IsLiveTrackingEnabled",
+            false, DataSourceUpdateMode.OnPropertyChanged);
 
-			Path = "";
-			IsStatsUploadingEnabled = true;
-			IsLiveTrackingEnabled = true;
-		}
+        Path = "";
+        IsStatsUploadingEnabled = true;
+        IsLiveTrackingEnabled = true;
+    }
 
-		public void SetSettings(XmlNode node)
-		{
-			var element = (XmlElement)node;
+    public void SetSettings(XmlNode node)
+    {
+        var element = (XmlElement)node;
 
-			Version version = SettingsHelper.ParseVersion(element["Version"]);
-			Path = SettingsHelper.ParseString(element["Path"]);
-			txtPath.Text = GetUploadKey();
-			IsStatsUploadingEnabled = element["IsStatsUploadingEnabled"] == null ? true : SettingsHelper.ParseBool(element["IsStatsUploadingEnabled"]);
-			IsLiveTrackingEnabled = element["IsLiveTrackingEnabled"] == null ? true : SettingsHelper.ParseBool(element["IsLiveTrackingEnabled"]);
-		}
+        Version version = SettingsHelper.ParseVersion(element["Version"]);
+        Path = SettingsHelper.ParseString(element["Path"]);
+        txtPath.Text = GetUploadKey();
+        IsStatsUploadingEnabled = element["IsStatsUploadingEnabled"] == null ? true : SettingsHelper.ParseBool(element["IsStatsUploadingEnabled"]);
+        IsLiveTrackingEnabled = element["IsLiveTrackingEnabled"] == null ? true : SettingsHelper.ParseBool(element["IsLiveTrackingEnabled"]);
+    }
 
-		private string GetUploadKey()
-		{
-			if (!string.IsNullOrEmpty(this.Path))
-			{
-				string key = this.Path;
-				SaveUploadKey(key);
-				return key;
-			}
-			if (!string.IsNullOrEmpty(txtPath.Text))
-			{
-				return txtPath.Text;
-			}
-			string filePath = System.IO.Path.Combine(UploadKeyFolder, UploadKeyFile);
-			if (!File.Exists(filePath)) return "";
-			return File.ReadAllText(filePath).Trim();
-		}
+    private string GetUploadKey()
+    {
+        if (!string.IsNullOrEmpty(this.Path))
+        {
+            string key = this.Path;
+            SaveUploadKey(key);
+            return key;
+        }
+        if (!string.IsNullOrEmpty(txtPath.Text))
+        {
+            return txtPath.Text;
+        }
+        string filePath = System.IO.Path.Combine(UploadKeyFolder, UploadKeyFile);
+        if (!File.Exists(filePath)) return "";
+        return File.ReadAllText(filePath).Trim();
+    }
 
-		private void SaveUploadKey(string key)
-		{
-			string filePath = System.IO.Path.Combine(UploadKeyFolder, UploadKeyFile);
-			Directory.CreateDirectory(System.IO.Path.GetDirectoryName(filePath));
-			File.WriteAllText(filePath, key);
-			this.Path = "";
-		}
+    private void SaveUploadKey(string key)
+    {
+        string filePath = System.IO.Path.Combine(UploadKeyFolder, UploadKeyFile);
+        Directory.CreateDirectory(System.IO.Path.GetDirectoryName(filePath));
+        File.WriteAllText(filePath, key);
+        this.Path = "";
+    }
 
-		public XmlNode GetSettings(XmlDocument document)
-		{
-			var parent = document.CreateElement("Settings");
-			CreateSettingsNode(document, parent);
-			return parent;
-		}
+    public XmlNode GetSettings(XmlDocument document)
+    {
+        var parent = document.CreateElement("Settings");
+        CreateSettingsNode(document, parent);
+        return parent;
+    }
 
-		public int GetSettingsHashCode()
-		{
-			return CreateSettingsNode(null, null);
-		}
+    public int GetSettingsHashCode()
+    {
+        return CreateSettingsNode(null, null);
+    }
 
-		private int CreateSettingsNode(XmlDocument document, XmlElement parent)
-		{
-			return SettingsHelper.CreateSetting(document, parent, "Version", "1.0.0") ^
-				SettingsHelper.CreateSetting(document, parent,
-					"IsStatsUploadingEnabled", IsStatsUploadingEnabled) ^
-				SettingsHelper.CreateSetting(document, parent,
-					"IsLiveTrackingEnabled", IsLiveTrackingEnabled);
-		}
+    private int CreateSettingsNode(XmlDocument document, XmlElement parent)
+    {
+        return SettingsHelper.CreateSetting(document, parent, "Version", "1.0.0") ^
+            SettingsHelper.CreateSetting(document, parent,
+                "IsStatsUploadingEnabled", IsStatsUploadingEnabled) ^
+            SettingsHelper.CreateSetting(document, parent,
+                "IsLiveTrackingEnabled", IsLiveTrackingEnabled);
+    }
 
-		private void txtPath_TextChanged(object sender, EventArgs e)
-		{
+    private void txtPath_TextChanged(object sender, EventArgs e)
+    {
 
-		}
+    }
 
-		private void label1_Click(object sender, EventArgs e)
-		{
+    private void label1_Click(object sender, EventArgs e)
+    {
 
-		}
+    }
 
-		private void txtPath_Leave(object sender, EventArgs e)
-		{
-			SaveUploadKey(txtPath.Text);
-		}
-	}
+    private void txtPath_Leave(object sender, EventArgs e)
+    {
+        SaveUploadKey(txtPath.Text);
+    }
 }
