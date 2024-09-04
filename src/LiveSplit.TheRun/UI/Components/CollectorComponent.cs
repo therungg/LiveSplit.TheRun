@@ -146,13 +146,17 @@ public class CollectorComponent : LogicComponent
         return timeSpan.TotalMilliseconds;
     }
 
+#pragma warning disable CS1998 // This async method lacks 'await' operators and will run synchronously.
     public async void HandlePause(object sender, object e)
+#pragma warning restore CS1998
     {
         TimerPaused = true;
         HandleSplit(sender, e);
     }
 
+#pragma warning disable CS1998 // This async method lacks 'await' operators and will run synchronously.
     public async void HandleResume(object sender, object e)
+#pragma warning restore CS1998
     {
 
         TimePausedBeforeResume = (TimeSpan)(State.PauseTime - CurrentPausedTime);
