@@ -75,10 +75,10 @@ public class CollectorComponent : LogicComponent
     private object buildLiveRunData()
     {
         IRun run = State.Run;
-        TimeSpan? CurrentTime = State.CurrentTime[State.CurrentTimingMethod];
+        TimeSpan? currentTime = State.CurrentTime[State.CurrentTimingMethod];
         List<object> runData = [];
 
-        var MetaData = new
+        var metaData = new
         {
             game = GameName,
             category = CategoryName,
@@ -113,7 +113,7 @@ public class CollectorComponent : LogicComponent
 
         return new
         {
-            metadata = MetaData,
+            metadata = metaData,
             currentTime = ConvertTime(State.CurrentTime),
             currentSplitName = State.CurrentSplit != null ? State.CurrentSplit.Name : "",
             currentSplitIndex = State.CurrentSplitIndex,
@@ -222,10 +222,10 @@ public class CollectorComponent : LogicComponent
             return;
         }
 
-        string FileName = HttpUtility.UrlEncode(GameName) + "-" + HttpUtility.UrlEncode(CategoryName) + ".lss";
-        string FileUploadUrl = FileUploadBaseUrl + "?filename=" + FileName + "&uploadKey=" + Settings.UploadKey;
+        string fileName = HttpUtility.UrlEncode(GameName) + "-" + HttpUtility.UrlEncode(CategoryName) + ".lss";
+        string fileUploadUrl = FileUploadBaseUrl + "?filename=" + fileName + "&uploadKey=" + Settings.UploadKey;
 
-        HttpResponseMessage result = await httpClient.GetAsync(FileUploadUrl);
+        HttpResponseMessage result = await httpClient.GetAsync(fileUploadUrl);
         string responseBody = await result.Content.ReadAsStringAsync();
 
         // Something went wrong, but the backend will handle the error, LiveSplit should just keep going.
@@ -236,9 +236,9 @@ public class CollectorComponent : LogicComponent
         }
 
         var ser = new JavaScriptSerializer();
-        Dictionary<string, string> JSONObj = ser.Deserialize<Dictionary<string, string>>(responseBody);
+        Dictionary<string, string> jsonObj = ser.Deserialize<Dictionary<string, string>>(responseBody);
 
-        string url = HttpUtility.UrlDecode(JSONObj["url"]);
+        string url = HttpUtility.UrlDecode(jsonObj["url"]);
         string correctlyEncodedUrl = EncodeUrl(url);
 
         var content = new StringContent(XmlRunAsString());
