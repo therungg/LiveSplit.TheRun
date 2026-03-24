@@ -11,7 +11,7 @@ public class CollectorFactory : IComponentFactory
 {
     public string ComponentName => "therun.gg";
 
-    public string Description => "Uploads your runs to therun.gg";
+    public string Description => "Syncs your runs and live data to therun.gg";
 
     public ComponentCategory Category => ComponentCategory.Other;
 
@@ -25,5 +25,5 @@ public class CollectorFactory : IComponentFactory
     public string UpdateURL => "https://raw.githubusercontent.com/therungg/LiveSplit.TheRun/main/";
     public string XMLURL => UpdateURL + "update.LiveSplit.TheRun.xml";
 
-    public Version Version => Version.Parse("0.3.3");
+    public Version Version => Version.Parse("0.4.0");
 }

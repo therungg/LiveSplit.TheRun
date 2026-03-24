@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Script.Serialization;
@@ -15,12 +16,17 @@ namespace LiveSplit.UI.Components;
 
 public class CollectorComponent : LogicComponent
 {
-    public override string ComponentName => "therun.gg";
+    public override string ComponentName => LastSyncTime != null
+        ? "therun.gg (synced " + FormatTimeAgo(LastSyncTime.Value) + ")"
+        : "therun.gg";
 
     private LiveSplitState State { get; set; }
     private CollectorSettings Settings { get; set; }
 
     private readonly HttpClient httpClient;
+    private UploadToast toast;
+    private DateTime? LastSyncTime;
+    private CancellationTokenSource liveCts;
 
     private string SplitWebhookUrl => "https://dspc6ekj2gjkfp44cjaffhjeue0fbswr.lambda-url.eu-west-1.on.aws/";
     private string FileUploadBaseUrl => "https://2uxp372ks6nwrjnk6t7lqov4zu0solno.lambda-url.eu-west-1.on.aws/";
@@ -39,6 +45,7 @@ public class CollectorComponent : LogicComponent
         Settings = new CollectorSettings();
 
         httpClient = new HttpClient();
+        httpClient.Timeout = TimeSpan.FromSeconds(15);
         httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
         httpClient.DefaultRequestHeaders.Add("Sec-Fetch-Site", "cross-site");
         httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Disposition", "attachment");
@@ -58,12 +65,16 @@ public class CollectorComponent : LogicComponent
 
     public async Task UpdateSplitsState()
     {
+        liveCts?.Cancel();
+        liveCts = new CancellationTokenSource();
+        var token = liveCts.Token;
+
         object returnData = buildLiveRunData();
 
         var serializer = new JavaScriptSerializer();
         var content = new StringContent(serializer.Serialize(returnData));
 
-        await httpClient.PostAsync(SplitWebhookUrl, content);
+        await httpClient.PostAsync(SplitWebhookUrl, content, token);
     }
 
     private void SetGameAndCategory()
@@ -146,19 +157,14 @@ public class CollectorComponent : LogicComponent
         return timeSpan.TotalMilliseconds;
     }
 
-#pragma warning disable CS1998 // This async method lacks 'await' operators and will run synchronously.
-    public async void HandlePause(object sender, object e)
-#pragma warning restore CS1998
+    public void HandlePause(object sender, object e)
     {
         TimerPaused = true;
         HandleSplit(sender, e);
     }
 
-#pragma warning disable CS1998 // This async method lacks 'await' operators and will run synchronously.
-    public async void HandleResume(object sender, object e)
-#pragma warning restore CS1998
+    public void HandleResume(object sender, object e)
     {
-
         TimePausedBeforeResume = (TimeSpan)(State.PauseTime - CurrentPausedTime);
         CurrentPausedTime = (TimeSpan)State.PauseTime;
         TimerPaused = false;
@@ -167,7 +173,6 @@ public class CollectorComponent : LogicComponent
         HandleSplit(sender, e);
     }
 
-    // TODO: Log or tell user when splits are invalid or when an error occurs. Don't just continue silently.
     public async void HandleSplit(object sender, object e)
     {
         SetGameAndCategory();
@@ -205,7 +210,10 @@ public class CollectorComponent : LogicComponent
                 await UpdateSplitsState();
             }
 
-            await UploadSplits();
+            if (Settings.IsUploadOnResetEnabled)
+            {
+                await UploadSplits();
+            }
         }
         catch { }
     }
@@ -222,14 +230,29 @@ public class CollectorComponent : LogicComponent
             return;
         }
 
+        ShowToast(t => t.ShowUploading());
+
+        try
+        {
+            await UploadSplitsCore();
+            LastSyncTime = DateTime.Now;
+            ShowToast(t => t.ShowSuccess());
+        }
+        catch
+        {
+            ShowToast(t => t.ShowError());
+            throw;
+        }
+    }
+
+    private async Task UploadSplitsCore()
+    {
         string fileName = HttpUtility.UrlEncode(GameName) + "-" + HttpUtility.UrlEncode(CategoryName) + ".lss";
         string fileUploadUrl = FileUploadBaseUrl + "?filename=" + fileName + "&uploadKey=" + Settings.UploadKey;
 
-        HttpResponseMessage result = await httpClient.GetAsync(fileUploadUrl);
-        string responseBody = await result.Content.ReadAsStringAsync();
+        HttpResponseMessage result = await httpClient.GetAsync(fileUploadUrl).ConfigureAwait(false);
+        string responseBody = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-        // Something went wrong, but the backend will handle the error, LiveSplit should just keep going.
-        // Probably the upload key was not filled in.
         if (!result.IsSuccessStatusCode)
         {
             return;
@@ -244,7 +267,34 @@ public class CollectorComponent : LogicComponent
         var content = new StringContent(XmlRunAsString());
         content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment");
 
-        await httpClient.PutAsync(correctlyEncodedUrl, content);
+        await httpClient.PutAsync(correctlyEncodedUrl, content).ConfigureAwait(false);
+    }
+
+    private void ShowToast(Action<UploadToast> action)
+    {
+        if (State.Form == null || State.Form.IsDisposed)
+        {
+            return;
+        }
+
+        void invoke()
+        {
+            if (toast == null || toast.IsDisposed)
+            {
+                toast = new UploadToast();
+            }
+
+            action(toast);
+        }
+
+        if (State.Form.InvokeRequired)
+        {
+            State.Form.Invoke((Action)invoke);
+        }
+        else
+        {
+            invoke();
+        }
     }
 
     private string EncodeUrl(string url)
@@ -260,11 +310,25 @@ public class CollectorComponent : LogicComponent
     private string XmlRunAsString()
     {
         var runSaver = new Model.RunSavers.XMLRunSaver();
-        var stream = new System.IO.MemoryStream();
+        using var stream = new System.IO.MemoryStream();
 
         runSaver.Save(State.Run, stream);
 
         return Encoding.UTF8.GetString(stream.ToArray());
+    }
+
+    private static string FormatTimeAgo(DateTime time)
+    {
+        TimeSpan ago = DateTime.Now - time;
+
+        if (ago.TotalSeconds < 60)
+            return "just now";
+        if (ago.TotalMinutes < 60)
+            return (int)ago.TotalMinutes + "m ago";
+        if (ago.TotalHours < 24)
+            return (int)ago.TotalHours + "h ago";
+
+        return time.ToString("MMM d HH:mm");
     }
 
     public override void Dispose()
@@ -273,8 +337,27 @@ public class CollectorComponent : LogicComponent
         State.OnSplit -= HandleSplit;
         State.OnSkipSplit -= HandleSplit;
         State.OnUndoSplit -= HandleSplit;
+        State.OnUndoAllPauses -= HandleSplit;
+
+        State.OnPause -= HandlePause;
+        State.OnResume -= HandleResume;
         State.OnReset -= HandleReset;
 
+        try
+        {
+            SetGameAndCategory();
+            if (AreSplitsValid() && Settings.IsStatsUploadingEnabled)
+            {
+                ShowToast(t => t.ShowUploading());
+                UploadSplitsCore().GetAwaiter().GetResult();
+                LastSyncTime = DateTime.Now;
+                ShowToast(t => t.ShowSuccess());
+            }
+        }
+        catch { }
+
+        liveCts?.Dispose();
+        toast?.Dispose();
         httpClient.Dispose();
     }
 
