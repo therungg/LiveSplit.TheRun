@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
 using System.Xml;
@@ -60,7 +61,7 @@ public partial class CollectorSettings : UserControl
         IsLiveTrackingEnabled = element["IsLiveTrackingEnabled"] == null || SettingsHelper.ParseBool(element["IsLiveTrackingEnabled"]);
         IsToastEnabled = element["IsToastEnabled"] == null || SettingsHelper.ParseBool(element["IsToastEnabled"]);
 
-        ValidateKey();
+        _ = ValidateKeyAsync();
     }
 
     private string GetUploadKey()
@@ -124,12 +125,12 @@ public partial class CollectorSettings : UserControl
         SaveUploadKey(txtPath.Text);
     }
 
-    private void btnTest_Click(object sender, EventArgs e)
+    private async void btnTest_Click(object sender, EventArgs e)
     {
-        ValidateKey();
+        await ValidateKeyAsync();
     }
 
-    private async void ValidateKey()
+    private async Task ValidateKeyAsync()
     {
         string key = GetUploadKey();
         if (string.IsNullOrWhiteSpace(key))
@@ -151,6 +152,8 @@ public partial class CollectorSettings : UserControl
             using var httpClient = new HttpClient();
             HttpResponseMessage result = await httpClient.GetAsync(url);
             string body = await result.Content.ReadAsStringAsync();
+
+            if (IsDisposed || !IsHandleCreated) return;
 
             if (result.IsSuccessStatusCode)
             {
@@ -174,6 +177,8 @@ public partial class CollectorSettings : UserControl
         }
         catch
         {
+            if (IsDisposed || !IsHandleCreated) return;
+
             ValidatedUsername = null;
             SetStatus(ConnectionStatus.Error);
             lnkUsername.Text = "Could not reach therun.gg.";
@@ -181,7 +186,10 @@ public partial class CollectorSettings : UserControl
         }
         finally
         {
-            btnTest.Enabled = true;
+            if (!IsDisposed && IsHandleCreated)
+            {
+                btnTest.Enabled = true;
+            }
         }
     }
 

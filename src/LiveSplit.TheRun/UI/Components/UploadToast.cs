@@ -9,8 +9,12 @@ public class UploadToast : Form
     private readonly Label label;
     private readonly Timer closeTimer;
 
-    public UploadToast()
+    private readonly Control owner;
+
+    public UploadToast(Control owner)
     {
+        this.owner = owner;
+
         FormBorderStyle = FormBorderStyle.None;
         StartPosition = FormStartPosition.Manual;
         ShowInTaskbar = false;
@@ -38,18 +42,21 @@ public class UploadToast : Form
             Close();
         };
 
-        PositionBottomRight();
+        PositionBelowOwner();
     }
 
-    private void PositionBottomRight()
+    private void PositionBelowOwner()
     {
-        var screen = Screen.PrimaryScreen.WorkingArea;
-        Location = new Point(screen.Right - Width - 10, screen.Bottom - Height - 10);
+        var bounds = owner.Bounds;
+        int x = bounds.Left + (bounds.Width - Width) / 2;
+        int y = bounds.Bottom;
+        Location = new Point(x, y);
     }
 
     public void ShowUploading()
     {
         closeTimer.Stop();
+        PositionBelowOwner();
         label.Text = "therun.gg: Syncing stats...";
         label.ForeColor = Color.White;
         Show();

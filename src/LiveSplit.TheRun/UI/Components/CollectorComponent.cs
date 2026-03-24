@@ -66,6 +66,7 @@ public class CollectorComponent : LogicComponent
     public async Task UpdateSplitsState()
     {
         liveCts?.Cancel();
+        liveCts?.Dispose();
         liveCts = new CancellationTokenSource();
         var token = liveCts.Token;
 
@@ -251,12 +252,8 @@ public class CollectorComponent : LogicComponent
         string fileUploadUrl = FileUploadBaseUrl + "?filename=" + fileName + "&uploadKey=" + Settings.UploadKey;
 
         HttpResponseMessage result = await httpClient.GetAsync(fileUploadUrl).ConfigureAwait(false);
+        result.EnsureSuccessStatusCode();
         string responseBody = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-        if (!result.IsSuccessStatusCode)
-        {
-            return;
-        }
 
         var ser = new JavaScriptSerializer();
         Dictionary<string, string> jsonObj = ser.Deserialize<Dictionary<string, string>>(responseBody);
@@ -267,7 +264,8 @@ public class CollectorComponent : LogicComponent
         var content = new StringContent(XmlRunAsString());
         content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment");
 
-        await httpClient.PutAsync(correctlyEncodedUrl, content).ConfigureAwait(false);
+        HttpResponseMessage putResult = await httpClient.PutAsync(correctlyEncodedUrl, content).ConfigureAwait(false);
+        putResult.EnsureSuccessStatusCode();
     }
 
     private void ShowToast(Action<UploadToast> action)
@@ -281,7 +279,7 @@ public class CollectorComponent : LogicComponent
         {
             if (toast == null || toast.IsDisposed)
             {
-                toast = new UploadToast();
+                toast = new UploadToast(State.Form);
             }
 
             action(toast);
