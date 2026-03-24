@@ -23,6 +23,7 @@ public partial class CollectorSettings : UserControl
     public bool IsStatsUploadingEnabled { get; set; }
     public bool IsUploadOnResetEnabled { get; set; }
     public bool IsLiveTrackingEnabled { get; set; }
+    public bool IsToastEnabled { get; set; }
 
     public enum ConnectionStatus { None, Validating, Connected, Error }
     public ConnectionStatus Status { get; private set; } = ConnectionStatus.None;
@@ -37,11 +38,14 @@ public partial class CollectorSettings : UserControl
             false, DataSourceUpdateMode.OnPropertyChanged);
         chkLiveTrackingEnabled.DataBindings.Add("Checked", this, "IsLiveTrackingEnabled",
             false, DataSourceUpdateMode.OnPropertyChanged);
+        chkToastEnabled.DataBindings.Add("Checked", this, "IsToastEnabled",
+            false, DataSourceUpdateMode.OnPropertyChanged);
 
         Path = "";
         IsStatsUploadingEnabled = true;
         IsUploadOnResetEnabled = true;
         IsLiveTrackingEnabled = true;
+        IsToastEnabled = true;
     }
 
     public void SetSettings(XmlNode node)
@@ -54,6 +58,7 @@ public partial class CollectorSettings : UserControl
         IsStatsUploadingEnabled = element["IsStatsUploadingEnabled"] == null || SettingsHelper.ParseBool(element["IsStatsUploadingEnabled"]);
         IsUploadOnResetEnabled = element["IsUploadOnResetEnabled"] == null || SettingsHelper.ParseBool(element["IsUploadOnResetEnabled"]);
         IsLiveTrackingEnabled = element["IsLiveTrackingEnabled"] == null || SettingsHelper.ParseBool(element["IsLiveTrackingEnabled"]);
+        IsToastEnabled = element["IsToastEnabled"] == null || SettingsHelper.ParseBool(element["IsToastEnabled"]);
 
         ValidateKey();
     }
@@ -109,7 +114,9 @@ public partial class CollectorSettings : UserControl
             SettingsHelper.CreateSetting(document, parent,
                 "IsUploadOnResetEnabled", IsUploadOnResetEnabled) ^
             SettingsHelper.CreateSetting(document, parent,
-                "IsLiveTrackingEnabled", IsLiveTrackingEnabled);
+                "IsLiveTrackingEnabled", IsLiveTrackingEnabled) ^
+            SettingsHelper.CreateSetting(document, parent,
+                "IsToastEnabled", IsToastEnabled);
     }
 
     private void txtPath_Leave(object sender, EventArgs e)

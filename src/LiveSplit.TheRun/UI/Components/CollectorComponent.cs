@@ -272,7 +272,7 @@ public class CollectorComponent : LogicComponent
 
     private void ShowToast(Action<UploadToast> action)
     {
-        if (State.Form == null || State.Form.IsDisposed)
+        if (!Settings.IsToastEnabled || State.Form == null || State.Form.IsDisposed)
         {
             return;
         }
