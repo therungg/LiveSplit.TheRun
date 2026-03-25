@@ -1,4 +1,13 @@
 ﻿<updates>
+  <update version="0.4.1">
+    <files>
+      <file path="Components/LiveSplit.TheRun.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Fixed Test button staying greyed out when navigating back to settings</change>
+      <change>Added HTTP timeout to prevent button from hanging indefinitely</change>
+    </changelog>
+  </update>
   <update version="0.4.0">
     <files>
       <file path="Components/LiveSplit.TheRun.dll" status="changed" />

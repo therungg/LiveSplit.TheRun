@@ -61,7 +61,20 @@ public partial class CollectorSettings : UserControl
         IsLiveTrackingEnabled = element["IsLiveTrackingEnabled"] == null || SettingsHelper.ParseBool(element["IsLiveTrackingEnabled"]);
         IsToastEnabled = element["IsToastEnabled"] == null || SettingsHelper.ParseBool(element["IsToastEnabled"]);
 
-        _ = ValidateKeyAsync();
+        if (IsHandleCreated)
+        {
+            _ = ValidateKeyAsync();
+        }
+        else
+        {
+            EventHandler handler = null;
+            handler = (s, e) =>
+            {
+                HandleCreated -= handler;
+                _ = ValidateKeyAsync();
+            };
+            HandleCreated += handler;
+        }
     }
 
     private string GetUploadKey()
@@ -149,7 +162,7 @@ public partial class CollectorSettings : UserControl
         {
             string url = "https://api.therun.gg/users/uploadKey/validate/" + key;
 
-            using var httpClient = new HttpClient();
+            using var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
             HttpResponseMessage result = await httpClient.GetAsync(url);
             string body = await result.Content.ReadAsStringAsync();
 
