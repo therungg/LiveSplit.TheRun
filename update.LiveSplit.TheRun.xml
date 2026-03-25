@@ -1,4 +1,19 @@
 ﻿<updates>
+  <update version="0.4.0">
+    <files>
+      <file path="Components/LiveSplit.TheRun.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Auto-validate upload key on startup with connection status indicator</change>
+      <change>User profile and live page link shown in settings</change>
+      <change>Sync status displayed in component name</change>
+      <change>Toast notifications for stats sync progress</change>
+      <change>Added Sync on Reset option</change>
+      <change>Settings panel with info about therun.gg features and tooltips</change>
+      <change>Fixed event handler memory leak in Dispose</change>
+      <change>Code cleanup and MemoryStream disposal fix</change>
+    </changelog>
+  </update>
   <update version="0.3.3">
     <files>
       <file path="Components/LiveSplit.TheRun.dll" status="changed" />
