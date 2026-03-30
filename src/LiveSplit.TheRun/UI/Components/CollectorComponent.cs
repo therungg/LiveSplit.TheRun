@@ -344,12 +344,16 @@ public class CollectorComponent : LogicComponent
         try
         {
             SetGameAndCategory();
-            if (AreSplitsValid() && Settings.IsStatsUploadingEnabled)
+            if (AreSplitsValid() && Settings.IsStatsUploadingEnabled && !Settings.IsUploadOnResetEnabled)
             {
                 ShowToast(t => t.ShowUploading());
-                UploadSplitsCore().GetAwaiter().GetResult();
-                LastSyncTime = DateTime.Now;
-                ShowToast(t => t.ShowSuccess());
+                using var disposeCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                var uploadTask = Task.Run(() => UploadSplitsCore(), disposeCts.Token);
+                if (uploadTask.Wait(TimeSpan.FromSeconds(5)))
+                {
+                    LastSyncTime = DateTime.Now;
+                    ShowToast(t => t.ShowSuccess());
+                }
             }
         }
         catch { }

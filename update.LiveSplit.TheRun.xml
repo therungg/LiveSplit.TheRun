@@ -1,4 +1,13 @@
 ﻿<updates>
+  <update version="0.4.2">
+    <files>
+      <file path="Components/LiveSplit.TheRun.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Fixed LiveSplit freezing on close when stats uploading is enabled</change>
+      <change>Skip upload on close when Sync on Reset is enabled</change>
+    </changelog>
+  </update>
   <update version="0.4.1">
     <files>
       <file path="Components/LiveSplit.TheRun.dll" status="changed" />

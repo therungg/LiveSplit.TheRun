@@ -25,5 +25,5 @@ public class CollectorFactory : IComponentFactory
     public string UpdateURL => "https://raw.githubusercontent.com/therungg/LiveSplit.TheRun/main/";
     public string XMLURL => UpdateURL + "update.LiveSplit.TheRun.xml";
 
-    public Version Version => Version.Parse("0.4.1");
+    public Version Version => Version.Parse("0.4.2");
 }
