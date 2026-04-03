@@ -1,4 +1,12 @@
 ﻿<updates>
+  <update version="0.4.3">
+    <files>
+      <file path="Components/LiveSplit.TheRun.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Remove ConfigureAwait(false) to fix component crashes (LiveSplit#2677)</change>
+    </changelog>
+  </update>
   <update version="0.4.2">
     <files>
       <file path="Components/LiveSplit.TheRun.dll" status="changed" />
