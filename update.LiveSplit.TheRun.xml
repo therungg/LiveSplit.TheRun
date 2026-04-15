@@ -1,4 +1,12 @@
 ﻿<updates>
+  <update version="0.4.4">
+    <files>
+      <file path="Components/LiveSplit.TheRun.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Strip images and layout path from splits file before uploading to reduce file size</change>
+    </changelog>
+  </update>
   <update version="0.4.3">
     <files>
       <file path="Components/LiveSplit.TheRun.dll" status="changed" />

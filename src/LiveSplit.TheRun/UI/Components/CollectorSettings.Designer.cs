@@ -41,6 +41,7 @@
 			this.chkUploadOnReset = new System.Windows.Forms.CheckBox();
 			this.chkLiveTrackingEnabled = new System.Windows.Forms.CheckBox();
 			this.chkToastEnabled = new System.Windows.Forms.CheckBox();
+			this.chkLayoutPathUpload = new System.Windows.Forms.CheckBox();
 			this.toolTip = new System.Windows.Forms.ToolTip();
 			((System.ComponentModel.ISupportInitialize)(this.picUser)).BeginInit();
 			this.tableLayoutPanel1.SuspendLayout();
@@ -64,10 +65,11 @@
 			this.tableLayoutPanel1.Controls.Add(this.chkUploadOnReset, 0, 5);
 			this.tableLayoutPanel1.Controls.Add(this.chkLiveTrackingEnabled, 0, 6);
 			this.tableLayoutPanel1.Controls.Add(this.chkToastEnabled, 0, 7);
+			this.tableLayoutPanel1.Controls.Add(this.chkLayoutPathUpload, 0, 8);
 			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(7, 7);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-			this.tableLayoutPanel1.RowCount = 8;
+			this.tableLayoutPanel1.RowCount = 9;
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 80F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
@@ -76,7 +78,8 @@
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(462, 266);
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(462, 291);
 			this.tableLayoutPanel1.TabIndex = 0;
 			//
 			// lblDescription
@@ -221,6 +224,17 @@
 			this.chkToastEnabled.Text = "Show Toast Notifications";
 			this.chkToastEnabled.UseVisualStyleBackColor = true;
 			//
+			// chkLayoutPathUpload
+			//
+			this.tableLayoutPanel1.SetColumnSpan(this.chkLayoutPathUpload, 3);
+			this.chkLayoutPathUpload.AutoSize = true;
+			this.chkLayoutPathUpload.Location = new System.Drawing.Point(3, 269);
+			this.chkLayoutPathUpload.Name = "chkLayoutPathUpload";
+			this.chkLayoutPathUpload.Size = new System.Drawing.Size(140, 17);
+			this.chkLayoutPathUpload.TabIndex = 14;
+			this.chkLayoutPathUpload.Text = "Upload Layout Path";
+			this.chkLayoutPathUpload.UseVisualStyleBackColor = true;
+			//
 			// toolTip
 			//
 			this.toolTip.AutoPopDelay = 10000;
@@ -230,6 +244,7 @@
 			this.toolTip.SetToolTip(this.chkUploadOnReset, "When enabled, stats are synced every time you reset the timer.\nWhen disabled, stats are only synced after a completed run or when closing LiveSplit.");
 			this.toolTip.SetToolTip(this.chkLiveTrackingEnabled, "Sends real-time split data to therun.gg so your current run appears on the live page.\nViewers and other runners can follow your progress as it happens.");
 			this.toolTip.SetToolTip(this.chkToastEnabled, "Shows a small notification when stats are being synced or when sync completes.");
+			this.toolTip.SetToolTip(this.chkLayoutPathUpload, "Includes the layout file path in the uploaded splits file.\nDisabled by default because the path may contain personal information such as your Windows username.\nIf disabled, you will need to reload your layout when re-downloading your splits from therun.gg.");
 			//
 			// CollectorSettings
 			//
@@ -238,7 +253,7 @@
 			this.Controls.Add(this.tableLayoutPanel1);
 			this.Name = "CollectorSettings";
 			this.Padding = new System.Windows.Forms.Padding(7);
-			this.Size = new System.Drawing.Size(476, 280);
+			this.Size = new System.Drawing.Size(476, 305);
 			((System.ComponentModel.ISupportInitialize)(this.picUser)).EndInit();
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.tableLayoutPanel1.PerformLayout();
@@ -261,6 +276,7 @@
         private System.Windows.Forms.CheckBox chkUploadOnReset;
         private System.Windows.Forms.CheckBox chkLiveTrackingEnabled;
         private System.Windows.Forms.CheckBox chkToastEnabled;
+        private System.Windows.Forms.CheckBox chkLayoutPathUpload;
         private System.Windows.Forms.ToolTip toolTip;
     }
 }
