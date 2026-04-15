@@ -312,7 +312,48 @@ public class CollectorComponent : LogicComponent
 
         runSaver.Save(State.Run, stream);
 
-        return Encoding.UTF8.GetString(stream.ToArray());
+        stream.Position = 0;
+
+        var doc = new XmlDocument();
+        doc.PreserveWhitespace = true;
+        doc.Load(stream);
+
+        StripDataForUpload(doc, Settings.IsLayoutPathUploadEnabled);
+
+        return doc.OuterXml;
+    }
+
+    private static void StripDataForUpload(XmlDocument doc, bool keepLayoutPath)
+    {
+        var run = doc.DocumentElement;
+
+        var gameIcon = run["GameIcon"];
+        if (gameIcon != null)
+        {
+            gameIcon.InnerText = "";
+        }
+
+        if (!keepLayoutPath)
+        {
+            var layoutPath = run["LayoutPath"];
+            if (layoutPath != null)
+            {
+                layoutPath.InnerText = "";
+            }
+        }
+
+        var segments = run["Segments"];
+        if (segments != null)
+        {
+            foreach (XmlElement segment in segments.GetElementsByTagName("Segment"))
+            {
+                var icon = segment["Icon"];
+                if (icon != null)
+                {
+                    icon.InnerText = "";
+                }
+            }
+        }
     }
 
     private static string FormatTimeAgo(DateTime time)
