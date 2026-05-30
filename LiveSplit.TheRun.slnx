@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/LiveSplit.TheRun/LiveSplit.TheRun.csproj" />
+  </Folder>
+</Solution>
