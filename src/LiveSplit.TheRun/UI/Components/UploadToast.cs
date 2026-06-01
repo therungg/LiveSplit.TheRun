@@ -1,5 +1,4 @@
-using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Windows.Forms;
 
 namespace LiveSplit.UI.Components;
@@ -48,7 +47,7 @@ public class UploadToast : Form
     private void PositionBelowOwner()
     {
         var bounds = owner.Bounds;
-        int x = bounds.Left + (bounds.Width - Width) / 2;
+        int x = bounds.Left + ((bounds.Width - Width) / 2);
         int y = bounds.Bottom;
         Location = new Point(x, y);
     }
@@ -83,6 +82,7 @@ public class UploadToast : Form
             closeTimer?.Dispose();
             label?.Dispose();
         }
+
         base.Dispose(disposing);
     }
 

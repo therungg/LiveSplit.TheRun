@@ -1,16 +1,16 @@
-﻿using System;
+﻿using LiveSplit.Model;
+using LiveSplit.Model.RunSavers;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
 using System.Xml;
-
-using LiveSplit.Model;
 
 namespace LiveSplit.UI.Components;
 
@@ -44,8 +44,10 @@ public class CollectorComponent : LogicComponent
         State = state;
         Settings = new CollectorSettings();
 
-        httpClient = new HttpClient();
-        httpClient.Timeout = TimeSpan.FromSeconds(15);
+        httpClient = new HttpClient
+        {
+            Timeout = TimeSpan.FromSeconds(15)
+        };
         httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
         httpClient.DefaultRequestHeaders.Add("Sec-Fetch-Site", "cross-site");
         httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Disposition", "attachment");
@@ -287,7 +289,7 @@ public class CollectorComponent : LogicComponent
 
         if (State.Form.InvokeRequired)
         {
-            State.Form.Invoke((Action)invoke);
+            State.Form.Invoke(invoke);
         }
         else
         {
@@ -297,7 +299,13 @@ public class CollectorComponent : LogicComponent
 
     private string EncodeUrl(string url)
     {
-        string[] urlParts = url.Split('&').Select(urlPart => urlPart.StartsWith("X-Amz-Credential") || urlPart.StartsWith("X-Amz-Security-Token") || urlPart.StartsWith("X-Amz-SignedHeaders") ? HttpUtility.UrlEncode(urlPart).Replace("%3d", "=") : urlPart).ToArray();
+        string[] urlParts =
+        [.. url.Split('&')
+            .Select(urlPart =>
+                urlPart.StartsWith("X-Amz-Credential")
+                || urlPart.StartsWith("X-Amz-Security-Token")
+                || urlPart.StartsWith("X-Amz-SignedHeaders") ? HttpUtility.UrlEncode(urlPart).Replace("%3d", "=") : urlPart)
+        ];
 
         string newUrl = string.Join("&", urlParts).Replace(GameName, HttpUtility.UrlEncode(GameName)).Replace(CategoryName, HttpUtility.UrlEncode(CategoryName));
         string username = newUrl.Replace("https://splits-bucket-main.s3.eu-west-1.amazonaws.com/", "").Split('/')[0];
@@ -307,15 +315,17 @@ public class CollectorComponent : LogicComponent
 
     private string XmlRunAsString()
     {
-        var runSaver = new Model.RunSavers.XMLRunSaver();
-        using var stream = new System.IO.MemoryStream();
+        var runSaver = new XMLRunSaver();
+        using var stream = new MemoryStream();
 
         runSaver.Save(State.Run, stream);
 
         stream.Position = 0;
 
-        var doc = new XmlDocument();
-        doc.PreserveWhitespace = true;
+        var doc = new XmlDocument
+        {
+            PreserveWhitespace = true
+        };
         doc.Load(stream);
 
         StripDataForUpload(doc, Settings.IsLayoutPathUploadEnabled);
@@ -328,18 +338,12 @@ public class CollectorComponent : LogicComponent
         var run = doc.DocumentElement;
 
         var gameIcon = run["GameIcon"];
-        if (gameIcon != null)
-        {
-            gameIcon.InnerText = "";
-        }
+        gameIcon?.InnerText = "";
 
         if (!keepLayoutPath)
         {
             var layoutPath = run["LayoutPath"];
-            if (layoutPath != null)
-            {
-                layoutPath.InnerText = "";
-            }
+            layoutPath?.InnerText = "";
         }
 
         var segments = run["Segments"];
@@ -348,10 +352,7 @@ public class CollectorComponent : LogicComponent
             foreach (XmlElement segment in segments.GetElementsByTagName("Segment"))
             {
                 var icon = segment["Icon"];
-                if (icon != null)
-                {
-                    icon.InnerText = "";
-                }
+                icon?.InnerText = "";
             }
         }
     }
@@ -389,7 +390,7 @@ public class CollectorComponent : LogicComponent
             {
                 ShowToast(t => t.ShowUploading());
                 using var disposeCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-                var uploadTask = Task.Run(() => UploadSplitsCore(), disposeCts.Token);
+                var uploadTask = Task.Run(UploadSplitsCore, disposeCts.Token);
                 if (uploadTask.Wait(TimeSpan.FromSeconds(5)))
                 {
                     LastSyncTime = DateTime.Now;

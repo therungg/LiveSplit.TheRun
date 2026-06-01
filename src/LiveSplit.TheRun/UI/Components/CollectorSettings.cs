@@ -72,12 +72,12 @@ public partial class CollectorSettings : UserControl
         }
         else
         {
-            EventHandler handler = null;
-            handler = (s, e) =>
+            void handler(object s, EventArgs e)
             {
                 HandleCreated -= handler;
                 _ = ValidateKeyAsync();
-            };
+            }
+
             HandleCreated += handler;
         }
     }
@@ -173,7 +173,8 @@ public partial class CollectorSettings : UserControl
             HttpResponseMessage result = await httpClient.GetAsync(url);
             string body = await result.Content.ReadAsStringAsync();
 
-            if (IsDisposed || !IsHandleCreated) return;
+            if (IsDisposed || !IsHandleCreated)
+                return;
 
             if (result.IsSuccessStatusCode)
             {
@@ -197,7 +198,8 @@ public partial class CollectorSettings : UserControl
         }
         catch
         {
-            if (IsDisposed || !IsHandleCreated) return;
+            if (IsDisposed || !IsHandleCreated)
+                return;
 
             ValidatedUsername = null;
             SetStatus(ConnectionStatus.Error);
