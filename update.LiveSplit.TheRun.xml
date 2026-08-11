@@ -1,4 +1,12 @@
 ﻿<updates>
+  <update version="0.4.5">
+    <files>
+      <file path="Components/LiveSplit.TheRun.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Removed the toast notification that appeared under the timer during stats sync</change>
+    </changelog>
+  </update>
   <update version="0.4.4">
     <files>
       <file path="Components/LiveSplit.TheRun.dll" status="changed" />
