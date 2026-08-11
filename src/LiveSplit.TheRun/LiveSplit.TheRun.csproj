@@ -7,10 +7,18 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
   </PropertyGroup>
 
-  <ItemGroup>
+  <!-- When LsBinPath is provided, compile against prebuilt LiveSplit DLLs instead of the LiveSplit source tree. -->
+  <!-- Example: `dotnet build -p:LsBinPath=path/to/LiveSplit` (the folder containing LiveSplit.Core.dll) -->
+  <ItemGroup Condition="'$(LsBinPath)' == ''">
     <ProjectReference Include="$(LsLibPath)/SpeedrunComSharp/src/SpeedrunComSharp/SpeedrunComSharp.csproj" Private="false" ExcludeAssets="runtime" />
     <ProjectReference Include="$(LsSrcPath)/LiveSplit.Core/LiveSplit.Core.csproj" Private="false" ExcludeAssets="runtime" />
     <ProjectReference Include="$(LsSrcPath)/UpdateManager/UpdateManager.csproj" Private="false" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(LsBinPath)' != ''">
+    <Reference Include="SpeedrunComSharp" HintPath="$(LsBinPath)/SpeedrunComSharp.dll" Private="false" />
+    <Reference Include="LiveSplit.Core" HintPath="$(LsBinPath)/LiveSplit.Core.dll" Private="false" />
+    <Reference Include="UpdateManager" HintPath="$(LsBinPath)/UpdateManager.dll" Private="false" />
   </ItemGroup>
 
   <ItemGroup>

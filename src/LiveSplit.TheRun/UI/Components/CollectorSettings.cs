@@ -24,7 +24,6 @@ public partial class CollectorSettings : UserControl
     public bool IsStatsUploadingEnabled { get; set; }
     public bool IsUploadOnResetEnabled { get; set; }
     public bool IsLiveTrackingEnabled { get; set; }
-    public bool IsToastEnabled { get; set; }
     public bool IsLayoutPathUploadEnabled { get; set; }
 
     public enum ConnectionStatus { None, Validating, Connected, Error }
@@ -40,8 +39,6 @@ public partial class CollectorSettings : UserControl
             false, DataSourceUpdateMode.OnPropertyChanged);
         chkLiveTrackingEnabled.DataBindings.Add("Checked", this, "IsLiveTrackingEnabled",
             false, DataSourceUpdateMode.OnPropertyChanged);
-        chkToastEnabled.DataBindings.Add("Checked", this, "IsToastEnabled",
-            false, DataSourceUpdateMode.OnPropertyChanged);
         chkLayoutPathUpload.DataBindings.Add("Checked", this, "IsLayoutPathUploadEnabled",
             false, DataSourceUpdateMode.OnPropertyChanged);
 
@@ -49,7 +46,6 @@ public partial class CollectorSettings : UserControl
         IsStatsUploadingEnabled = true;
         IsUploadOnResetEnabled = true;
         IsLiveTrackingEnabled = true;
-        IsToastEnabled = true;
         IsLayoutPathUploadEnabled = false;
     }
 
@@ -63,7 +59,6 @@ public partial class CollectorSettings : UserControl
         IsStatsUploadingEnabled = element["IsStatsUploadingEnabled"] == null || SettingsHelper.ParseBool(element["IsStatsUploadingEnabled"]);
         IsUploadOnResetEnabled = element["IsUploadOnResetEnabled"] == null || SettingsHelper.ParseBool(element["IsUploadOnResetEnabled"]);
         IsLiveTrackingEnabled = element["IsLiveTrackingEnabled"] == null || SettingsHelper.ParseBool(element["IsLiveTrackingEnabled"]);
-        IsToastEnabled = element["IsToastEnabled"] == null || SettingsHelper.ParseBool(element["IsToastEnabled"]);
         IsLayoutPathUploadEnabled = element["IsLayoutPathUploadEnabled"] != null && SettingsHelper.ParseBool(element["IsLayoutPathUploadEnabled"]);
 
         if (IsHandleCreated)
@@ -134,8 +129,6 @@ public partial class CollectorSettings : UserControl
                 "IsUploadOnResetEnabled", IsUploadOnResetEnabled) ^
             SettingsHelper.CreateSetting(document, parent,
                 "IsLiveTrackingEnabled", IsLiveTrackingEnabled) ^
-            SettingsHelper.CreateSetting(document, parent,
-                "IsToastEnabled", IsToastEnabled) ^
             SettingsHelper.CreateSetting(document, parent,
                 "IsLayoutPathUploadEnabled", IsLayoutPathUploadEnabled);
     }

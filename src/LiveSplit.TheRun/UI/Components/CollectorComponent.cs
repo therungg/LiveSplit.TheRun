@@ -24,7 +24,6 @@ public class CollectorComponent : LogicComponent
     private CollectorSettings Settings { get; set; }
 
     private readonly HttpClient httpClient;
-    private UploadToast toast;
     private DateTime? LastSyncTime;
     private CancellationTokenSource liveCts;
 
@@ -233,19 +232,8 @@ public class CollectorComponent : LogicComponent
             return;
         }
 
-        ShowToast(t => t.ShowUploading());
-
-        try
-        {
-            await UploadSplitsCore();
-            LastSyncTime = DateTime.Now;
-            ShowToast(t => t.ShowSuccess());
-        }
-        catch
-        {
-            ShowToast(t => t.ShowError());
-            throw;
-        }
+        await UploadSplitsCore();
+        LastSyncTime = DateTime.Now;
     }
 
     private async Task UploadSplitsCore()
@@ -268,33 +256,6 @@ public class CollectorComponent : LogicComponent
 
         HttpResponseMessage putResult = await httpClient.PutAsync(correctlyEncodedUrl, content);
         putResult.EnsureSuccessStatusCode();
-    }
-
-    private void ShowToast(Action<UploadToast> action)
-    {
-        if (!Settings.IsToastEnabled || State.Form == null || State.Form.IsDisposed)
-        {
-            return;
-        }
-
-        void invoke()
-        {
-            if (toast == null || toast.IsDisposed)
-            {
-                toast = new UploadToast(State.Form);
-            }
-
-            action(toast);
-        }
-
-        if (State.Form.InvokeRequired)
-        {
-            State.Form.Invoke(invoke);
-        }
-        else
-        {
-            invoke();
-        }
     }
 
     private string EncodeUrl(string url)
@@ -338,12 +299,18 @@ public class CollectorComponent : LogicComponent
         var run = doc.DocumentElement;
 
         var gameIcon = run["GameIcon"];
-        gameIcon?.InnerText = "";
+        if (gameIcon != null)
+        {
+            gameIcon.InnerText = "";
+        }
 
         if (!keepLayoutPath)
         {
             var layoutPath = run["LayoutPath"];
-            layoutPath?.InnerText = "";
+            if (layoutPath != null)
+            {
+                layoutPath.InnerText = "";
+            }
         }
 
         var segments = run["Segments"];
@@ -352,7 +319,10 @@ public class CollectorComponent : LogicComponent
             foreach (XmlElement segment in segments.GetElementsByTagName("Segment"))
             {
                 var icon = segment["Icon"];
-                icon?.InnerText = "";
+                if (icon != null)
+                {
+                    icon.InnerText = "";
+                }
             }
         }
     }
@@ -388,20 +358,17 @@ public class CollectorComponent : LogicComponent
             SetGameAndCategory();
             if (AreSplitsValid() && Settings.IsStatsUploadingEnabled && !Settings.IsUploadOnResetEnabled)
             {
-                ShowToast(t => t.ShowUploading());
                 using var disposeCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
                 var uploadTask = Task.Run(UploadSplitsCore, disposeCts.Token);
                 if (uploadTask.Wait(TimeSpan.FromSeconds(5)))
                 {
                     LastSyncTime = DateTime.Now;
-                    ShowToast(t => t.ShowSuccess());
                 }
             }
         }
         catch { }
 
         liveCts?.Dispose();
-        toast?.Dispose();
         httpClient.Dispose();
     }
 
